@@ -1,0 +1,23 @@
+HIGHEST IMPORTANCE
+- refactor game code and improve it wherever you can to start adding networking
+= read resources to learn about networking in games
+
+TODO
+- see what tiles are at a particular location especially when there are multiple in one place
+- make removing tiles easier and ensure they actually fit on the map
+- maybe add z layering for the tiles
+- make the tiles selectable
+- refactor the code to be cleaner (look into other projects as well to see how editors are organized)
+    - possibly look into how godot engine does its editor ui
+
+- add imgui - done
+- add image loading and selection - done
+- fix grid tex going blank issue - done
+- removed certain tiles cause issues - done
+- add assertions and ensure things are tested properly - done
+- fix image displays - done
+- serialize level data into some sort of file - done
+- read level data from file - done
+- remove world items - done
+- rewrite file i/o to use c file b/c things are more known per line - done
+- comment code for future readability - done

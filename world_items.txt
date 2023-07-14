@@ -1,0 +1,3 @@
+ground GAME_DELIM C:\Sarthak\projects\Platformer\Editor\resources\mario\ground.png GAME_DELIM 1 GAME_DELIM 1
+sky GAME_DELIM C:\Sarthak\projects\Platformer\Editor\resources\mario\sky.png GAME_DELIM 1 GAME_DELIM 1
+happy GAME_DELIM C:\Sarthak\projects\Platformer\Editor\resources\happy.jpg GAME_DELIM 1 GAME_DELIM 1
