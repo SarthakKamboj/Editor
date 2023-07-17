@@ -155,7 +155,7 @@ void init_fbo_draw_data(application_t& app) {
 void init_world_items() {
     const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\world_items.txt";
     FILE* file;
-    fopen_s(&file, file_path, "r");
+    file = fopen(file_path, "r");
     std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
 	size_t delim_len = delim.size();
     static std::string world_item_format = "%1023s " + delim + " %1023s " + delim + " %i " + delim + " %i\n";
@@ -166,7 +166,7 @@ void init_world_items() {
             char path[1024]{};
             int width = 0;
             int height = 0;
-            fscanf_s(file, world_item_format_char, name, 1023, path, 1023, &width, &height);
+            fscanf(file, world_item_format_char, name, path, &width, &height);
             std::string name_str(name);
             create_world_item(path, width, height, name_str);
         }
@@ -181,7 +181,7 @@ void init_world_items() {
 void init_placed_world_items() {
     const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\level1.txt";
     FILE* file;
-    fopen_s(&file, file_path, "r");
+    file = fopen(file_path, "r");
 	size_t delim_len = std::string(WORLD_ITEM_TEXT_FILE_DELIM).size();
     std::map<int, int> idx_to_handle_map;
     int i = 0;
@@ -203,7 +203,7 @@ void init_placed_world_items() {
                 char path[1024]{};
                 int width = 0;
                 int height = 0;
-                sscanf_s(line, world_item_format_char, name, 1023, path, 1023, &width, &height);
+                sscanf(line, world_item_format_char, name, path, &width, &height);
                 std::string name_str(name);
 
                 int handle = get_world_item_handle(path, width, height);
@@ -232,7 +232,7 @@ void init_placed_world_items() {
             int idx = -1;
             int x = -1;
             int y = -1;
-            sscanf_s(line, placed_item_format_char, &idx, &x, &y);
+            sscanf(line, placed_item_format_char, &idx, &x, &y);
 
             int handle = idx_to_handle_map[idx];
             

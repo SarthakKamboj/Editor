@@ -55,7 +55,7 @@ int get_world_item_handle(const char* path, int squares_width, int squares_heigh
 
 void write_world_items_to_file() {
     FILE* out_file;
-    fopen_s(&out_file, "world_items.txt", "w");
+    out_file = fopen("world_items.txt", "w");
     if (out_file) {
         for (world_item_t& world_item : world_items) {
             texture_t& tex = *get_texture(world_item.texture_handle);
@@ -94,7 +94,7 @@ void write_world_map_to_file() {
     // }
 
     FILE* out_file;
-	fopen_s(&out_file, "level1.txt", "w");
+	out_file = fopen("level1.txt", "w");
     std::map<int, int> handle_to_idx_map;
     if (out_file) {
         fprintf(out_file, "WORLD_ITEMS\n");

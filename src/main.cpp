@@ -16,7 +16,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "renderer/camera.h"
 #include "editorItems/worldItem.h"
-#include "imgui-filebrowser/imfilebrowser.h"
+// #include "imgui-filebrowser/imfilebrowser.h"
 #include "editorItems/addWorldItemModal.h"
 #include "utils/conversion.h"
 
@@ -68,9 +68,9 @@ int main(int argc, char** argv) {
 	int debug_transform_handle = create_transform(glm::vec3(0.f), glm::vec3(1.f), 0.f);
 	debug_bottom_left_world_grid_tex = create_rectangle_render(debug_transform_handle, selected_color, -1, 10, 10, false, 0);
 
-	ImGui::FileBrowser file_browser;
-	file_browser.SetTitle("File Browser");
-	file_browser.SetTypeFilters({".png", ".jpg", ".JPG", ".jpeg", ".JPEG"});
+	// ImGui::FileBrowser file_browser;
+	// file_browser.SetTitle("File Browser");
+	// file_browser.SetTypeFilters({".png", ".jpg", ".JPG", ".jpeg", ".JPEG"});
 
 	while (app.running) {
 
@@ -115,14 +115,15 @@ int main(int argc, char** argv) {
 		}
 		ImGui::End();
 
-		// ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 		if (ImGui::BeginMainMenuBar()) {
 			conversion::set_window_top_left_screen_coord();
 
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("Add World Item")) {
-					file_browser.Open();
+				// 	file_browser.Open();
+			        open_add_world_modal();
 				}
                 if (ImGui::MenuItem("Save World Items")) {
                     write_world_items_to_file();
@@ -135,21 +136,23 @@ int main(int argc, char** argv) {
 			ImGui::EndMainMenuBar();
 		}
 
-		file_browser.Display();
+		// file_browser.Display();
 	
-		if (file_browser.HasSelected())
-		{
-			std::cout << "Selected filename" << file_browser.GetSelected().string() << std::endl;
-			std::string path = file_browser.GetSelected().string();
-			file_browser.ClearSelected();
-			open_add_world_modal(path);
-		}
+		// if (file_browser.HasSelected())
+		// {
+		// 	std::cout << "Selected filename" << file_browser.GetSelected().string() << std::endl;
+		// 	std::string path = file_browser.GetSelected().string();
+		// 	file_browser.ClearSelected();
+			// open_add_world_modal(path);
+		// 	open_add_world_modal();
+		// }
 
 		update(camera, key_state, x_offset);
 
         // render the framebuffer texture from the render pass used to display the actual world grid
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+		// ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+		ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoCollapse;
 		if (ImGui::Begin("World", nullptr, world_win_flags)) {
 			ImVec2 size = ImGui::GetWindowSize();
 			float x_ratio = size.x / WINDOW_WIDTH;
