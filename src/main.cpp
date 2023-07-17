@@ -68,10 +68,6 @@ int main(int argc, char** argv) {
 	int debug_transform_handle = create_transform(glm::vec3(0.f), glm::vec3(1.f), 0.f);
 	debug_bottom_left_world_grid_tex = create_rectangle_render(debug_transform_handle, selected_color, -1, 10, 10, false, 0);
 
-	// ImGui::FileBrowser file_browser;
-	// file_browser.SetTitle("File Browser");
-	// file_browser.SetTypeFilters({".png", ".jpg", ".JPG", ".jpeg", ".JPEG"});
-
 	while (app.running) {
 
         transform_t& transform = *get_transform(transform_handle);
@@ -122,7 +118,6 @@ int main(int argc, char** argv) {
 
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("Add World Item")) {
-				// 	file_browser.Open();
 			        open_add_world_modal();
 				}
                 if (ImGui::MenuItem("Save World Items")) {
@@ -136,22 +131,10 @@ int main(int argc, char** argv) {
 			ImGui::EndMainMenuBar();
 		}
 
-		// file_browser.Display();
-	
-		// if (file_browser.HasSelected())
-		// {
-		// 	std::cout << "Selected filename" << file_browser.GetSelected().string() << std::endl;
-		// 	std::string path = file_browser.GetSelected().string();
-		// 	file_browser.ClearSelected();
-			// open_add_world_modal(path);
-		// 	open_add_world_modal();
-		// }
-
 		update(camera, key_state, x_offset);
 
         // render the framebuffer texture from the render pass used to display the actual world grid
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		// ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 		ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoCollapse;
 		if (ImGui::Begin("World", nullptr, world_win_flags)) {
 			ImVec2 size = ImGui::GetWindowSize();

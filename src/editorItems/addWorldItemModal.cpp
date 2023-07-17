@@ -12,10 +12,7 @@ static int num_squares_high = 1;
 static char name_buffer[255];
 static bool popup_opened = false;
 
-// void open_add_world_modal(const std::string& file_path) {
 void open_add_world_modal() {
-	// img_file_path = file_path;
-	// ImGui::OpenPopup(ADD_WORLD_ITEM_MODAL_TITLE);
     popup_opened = true;
 	num_squares_high = 1;
 	num_squares_wide = 1;
