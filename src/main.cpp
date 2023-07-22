@@ -1,5 +1,3 @@
-#if 1
-
 #include "input/input.h"
 #include "SDL.h"
 #include "glad/glad.h"
@@ -73,9 +71,11 @@ int main(int argc, char** argv) {
         transform_t& transform = *get_transform(transform_handle);
 	    transform_t& debug_transform = *get_transform(debug_transform_handle);
 
+#if ENABLE_IMGUI
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
+#endif
 
 		float start = platformer::get_time_since_start_in_sec();
 		process_input(mouse_state, key_state, app.window);	
@@ -83,6 +83,7 @@ int main(int argc, char** argv) {
 			app.running = false;
 		}
 
+#if ENABLE_IMGUI
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -92,8 +93,8 @@ int main(int argc, char** argv) {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
         ImGui::PopStyleVar(2);
+
 		ImGuiIO& io = ImGui::GetIO();
 
         // for making the entire editor window dockable
@@ -111,7 +112,7 @@ int main(int argc, char** argv) {
 		}
 		ImGui::End();
 
-		ImGui::ShowDemoWindow();
+		// ImGui::ShowDemoWindow();
 
 		if (ImGui::BeginMainMenuBar()) {
 			conversion::set_window_top_left_screen_coord();
@@ -130,9 +131,11 @@ int main(int argc, char** argv) {
 			}
 			ImGui::EndMainMenuBar();
 		}
+#endif
 
 		update(camera, key_state, x_offset);
 
+#if ENABLE_IMGUI
         // render the framebuffer texture from the render pass used to display the actual world grid
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoCollapse;
@@ -193,22 +196,26 @@ int main(int argc, char** argv) {
 			ImGui::End();
 		}
 		ImGui::PopStyleVar();
+#endif
 
 		render(app, camera);
+
+#if ENABLE_IMGUI
+        if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+            SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+        }
+#endif
+
+        SDL_GL_SwapWindow(app.window);
+
 		float end = platformer::get_time_since_start_in_sec();
 		platformer::time_t::delta_time = end - start;
 	}
+
 	return -1;
 }
-#else
-
-#include <iostream>
-#include "SDL.h"
-#include "glad/glad.h"
-#include "imgui.h"
-
-int main(int argc, char* argv[]) {
-    std::cout << argv[0] << std::endl;
-}
-
-#endif

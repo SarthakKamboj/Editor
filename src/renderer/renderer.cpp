@@ -14,6 +14,7 @@ extern int debug_bottom_left_world_grid_tex;
 
 void render(application_t& app, camera_t& camera) {
 
+#if ENABLE_IMGUI
     // world grid render pass
 	bind_framebuffer(app.world_grid_fbo);
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -37,18 +38,15 @@ void render(application_t& app, camera_t& camera) {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());	
+	// draw_rectangle_render(debug_bottom_left_world_grid_tex);
 
-	draw_rectangle_render(debug_bottom_left_world_grid_tex);
+#else
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	ImGuiIO& io = *app.io;
-	if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-		SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-		SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-	}
+    draw_rectangle_renders(camera);
 
-	SDL_GL_SwapWindow(app.window);
+#endif
+	
 }

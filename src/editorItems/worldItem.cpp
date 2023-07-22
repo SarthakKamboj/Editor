@@ -60,7 +60,6 @@ void write_world_items_to_file() {
         for (world_item_t& world_item : world_items) {
             texture_t& tex = *get_texture(world_item.texture_handle);
             fprintf(out_file, "%s %s %s %s %i %s %i\n", world_item.world_item_name.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, tex.path.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_width, WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_height);
-            // out_file << world_item.world_item_name << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << tex.path << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << std::to_string(world_item.grid_squares_width) << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << std::to_string(world_item.grid_squares_height) << "\n";
         }
         fclose(out_file);
     } else {
@@ -70,29 +69,6 @@ void write_world_items_to_file() {
 
 // TODO: remove use of world item handles since those may change with the application
 void write_world_map_to_file() {
-    // std::ofstream out_file;
-	// out_file.open("level1.txt");
-    // std::map<int, int> handle_to_idx_map;
-    // if (out_file.is_open()) {
-    //     out_file << "WORLD_ITEMS" << std::endl;
-    //     for (int i = 0; i < world_items.size(); i++) {
-    //         world_item_t& world_item = world_items[i];
-    //         texture_t* ptr = get_texture(world_item.texture_handle);
-    //         assert(ptr != NULL);
-    //         texture_t& tex = *ptr;
-    //         out_file << world_item.world_item_name << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << tex.path << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << std::to_string(world_item.grid_squares_width) << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << std::to_string(world_item.grid_squares_height) << "\n";
-    //         handle_to_idx_map[world_item.handle] = i;
-    //     }
-
-    //     out_file << "\nPLACED_ITEMS" << std::endl;
-    //     for (placed_world_item_t& placed_item : placed_items) {
-    //         out_file << handle_to_idx_map[placed_item.world_item_handle] << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << placed_item.bottom_left_grid_square_pos.x << " " << WORLD_ITEM_TEXT_FILE_DELIM << " " << placed_item.bottom_left_grid_square_pos.y << "\n";
-    //     }
-    //     out_file.close();
-    // } else {
-    //     throw std::runtime_error("could not open world items file");
-    // }
-
     FILE* out_file;
 	out_file = fopen("level1.txt", "w");
     std::map<int, int> handle_to_idx_map;
@@ -107,7 +83,7 @@ void write_world_map_to_file() {
             handle_to_idx_map[world_item.handle] = i;
         }
 
-        fprintf(out_file, "\nPLACED_ITEMS\n");
+        fprintf(out_file, "PLACED_ITEMS\n");
         for (placed_world_item_t& placed_item : placed_items) {
             fprintf(out_file, "%i %s %i %s %i\n", handle_to_idx_map[placed_item.world_item_handle], WORLD_ITEM_TEXT_FILE_DELIM, (int)placed_item.bottom_left_grid_square_pos.x, WORLD_ITEM_TEXT_FILE_DELIM, (int)placed_item.bottom_left_grid_square_pos.y);
         }

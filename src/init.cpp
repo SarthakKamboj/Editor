@@ -54,6 +54,7 @@ void init_sdl(application_t& app) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+ #if ENABLE_IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -75,8 +76,10 @@ void init_sdl(application_t& app) {
 	ImGui_ImplSDL2_InitForOpenGL(window, context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	app.window = window;
 	app.io = &io;
+#endif
+
+	app.window = window;
 }
 
 void init_rectangle_data() {
@@ -153,7 +156,8 @@ void init_fbo_draw_data(application_t& app) {
 }
 
 void init_world_items() {
-    const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\world_items.txt";
+    // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\world_items.txt";
+    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\world_items.txt";
     FILE* file;
     file = fopen(file_path, "r");
     std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
@@ -179,7 +183,8 @@ void init_world_items() {
 
 // TODO: remove use of world item handles since those may change with the application
 void init_placed_world_items() {
-    const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\level1.txt";
+    // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\level1.txt";
+    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level1.txt";
     FILE* file;
     file = fopen(file_path, "r");
 	size_t delim_len = std::string(WORLD_ITEM_TEXT_FILE_DELIM).size();
@@ -192,7 +197,7 @@ void init_placed_world_items() {
             memset(line, 0, 1024);
             fgets(line, 1024, file);
             if (strcmp(line, "WORLD_ITEMS\n") == 0) continue;
-			if (!placed_items_section && (strcmp(line, "\n") == 0)) continue;
+			// if (!placed_items_section && (strcmp(line, "\n") == 0)) continue;
             if (!placed_items_section && (strcmp(line, "PLACED_ITEMS\n") != 0)) {
                 std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
                 size_t delim_len = delim.size();
