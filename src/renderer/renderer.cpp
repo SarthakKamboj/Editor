@@ -3,11 +3,11 @@
 #include "imgui.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "SDL.h"
-#include "editorItems/worldItem.h"
 #include "renderer/opengl/buffers.h"
 #include "constants.h"
 #include <iostream>
-#include "editorItems/addWorldItemModal.h"
+#include <editor_items/add_world_item_modal.h>
+#include <editor_items/world_item.h>
 
 // will add spritesheet renderers as well in the future
 extern int debug_bottom_left_world_grid_tex;

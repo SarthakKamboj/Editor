@@ -34,9 +34,10 @@ add_executable(${PROJECT_NAME}
     src/renderer/opengl/resources.cpp
     src/renderer/opengl/vertex.cpp
     src/input/input.cpp
-    src/editorItems/addWorldItemModal.cpp
-    src/editorItems/gridline.cpp
-    src/editorItems/worldItem.cpp
+    src/editor_items/add_world_item_modal.cpp
+    src/editor_items/gridline.cpp
+    src/editor_items/world_item.cpp
+    src/editor_items/editor_items.cpp
 
     # imgui files
     external/imgui-docking/imgui_demo.cpp

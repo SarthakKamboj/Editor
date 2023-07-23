@@ -4,8 +4,8 @@
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
-#include <editorItems/addWorldItemModal.h>
-#include <editorItems/worldItem.h>
+#include <editor_items/add_world_item_modal.h>
+#include <editor_items/world_item.h>
 
 void update(camera_t& camera, key_state_t& key_state, float& x_offset) {
 	update_camera(camera, key_state);
