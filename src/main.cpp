@@ -66,10 +66,8 @@ int main(int argc, char** argv) {
 
 	    // transform_t& debug_transform = *get_transform(debug_transform_handle);
 
-#if ENABLE_IMGUI
         imgui_new_frame();
 		ImGuiIO& io = ImGui::GetIO();
-#endif
 
 		float start = platformer::get_time_since_start_in_sec();
 		process_input(mouse_state, key_state, app.window);	
@@ -77,16 +75,12 @@ int main(int argc, char** argv) {
 			app.running = false;
 		}
 
-#if ENABLE_IMGUI	
         create_editor_windows(io, app, x_offset) ;
-#endif
 
 		update(camera, key_state, x_offset);
 		render(app, camera);
 
-#if ENABLE_IMGUI
         imgui_end_of_frame(io);
-#endif
 
         SDL_GL_SwapWindow(app.window);
 

@@ -14,9 +14,7 @@ void process_input(mouse_state_t& mouse_state, key_state_t& key_state, SDL_Windo
 	key_state.key_up.clear();
 
 	while (SDL_PollEvent(&event)) {
-#if ENABLE_IMGUI
 		ImGui_ImplSDL2_ProcessEvent(&event);
-#endif
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window)) {
 			key_state.close_event_pressed = true;
 			continue;

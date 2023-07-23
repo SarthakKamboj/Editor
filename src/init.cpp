@@ -54,7 +54,6 @@ void init_sdl(application_t& app) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
- #if ENABLE_IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -77,7 +76,6 @@ void init_sdl(application_t& app) {
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
 	app.io = &io;
-#endif
 
 	app.window = window;
 }
