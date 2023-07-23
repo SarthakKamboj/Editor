@@ -246,6 +246,7 @@ int place_world_item(int world_item_handle, const glm::vec2 &bottom_left_grid_sq
     position.y = center_grid_square.y * GRID_SQUARE_WIDTH;
 
     int transform_handle = create_transform(position, glm::vec3(1), 0);
+    placed_world_item.transform_handle = transform_handle;
     glm::vec3 color(1);
     placed_world_item.rec_render_handle = create_rectangle_render(transform_handle, color,
                                                                   world_item.texture_handle,
