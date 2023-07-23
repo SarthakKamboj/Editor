@@ -53,7 +53,7 @@ void create_menu_bar()
         {
             if (ImGui::MenuItem("Add World Item"))
             {
-                // open_add_world_modal();
+                open_add_world_modal();
             }
             if (ImGui::MenuItem("Save World Items"))
             {
