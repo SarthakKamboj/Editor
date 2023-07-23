@@ -15,8 +15,4 @@ void update(camera_t& camera, key_state_t& key_state, float& x_offset) {
 		x_offset -= CAMERA_SCROLL_SPEED * platformer::time_t::delta_time;
 	} 
 
-#if ENABLE_IMGUI
-	update_add_world_item_modal();
-	update_world_item_catalog();
-#endif
 }

@@ -6,6 +6,7 @@
 #include "utils/conversion.h"
 #include "constants.h"
 #include "renderer/basic/shape_renders.h"
+#include "add_world_item_modal.h"
 
 extern mouse_state_t mouse_state;
 
@@ -160,4 +161,8 @@ void create_editor_windows(ImGuiIO &io, application_t &app, float x_offset)
     create_menu_bar();
     // render the framebuffer texture from the render pass used to display the actual world grid
     create_world_map_window(app, x_offset);
+
+    update_add_world_item_modal();
+	create_world_item_catalog();
+    create_placed_world_items_editor();
 }

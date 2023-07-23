@@ -3,8 +3,8 @@
 #include "glm/glm.hpp"
 #include <string>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1000
+#define WINDOW_HEIGHT 700
 #define RESOURCES_PATH std::string("C:\\Sarthak\\projects\\Platformer\\Editor\\resources")
 #define SHADERS_PATH (RESOURCES_PATH + std::string("\\shaders"))
 #define GRID_SQUARE_WIDTH 40.f
