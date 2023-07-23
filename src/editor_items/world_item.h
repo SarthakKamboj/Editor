@@ -2,6 +2,7 @@
 
 #include "renderer/opengl/resources.h"
 #include "transform/transform.h"
+#include "app.h"
 
 struct world_item_t {
     int handle = -1;
@@ -33,7 +34,7 @@ int place_world_item(int world_item_handle, const glm::vec2& bottom_left_grid_sq
 placed_world_item_t* get_placed_world_item(int placed_handle);
 void remove_placed_world_item(glm::vec2 grid_square_pos);
 void remove_placed_world_item(int placed_handle);
-void write_world_map_to_file();
+void write_world_map_to_file(level_info_t& level_info);
 
 // EDITOR FUNCTIONS
 void create_world_item_catalog();

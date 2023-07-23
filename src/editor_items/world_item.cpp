@@ -81,8 +81,10 @@ void write_world_items_to_file()
 }
 
 // TODO: remove use of world item handles since those may change with the application
-void write_world_map_to_file()
+void write_world_map_to_file(level_info_t& level_info)
 {
+    char output_file[256]{};
+    // sprintf(output_file, "" )
     FILE *out_file;
     out_file = fopen("level1.txt", "w");
     std::map<int, int> handle_to_idx_map;

@@ -9,6 +9,7 @@
 #include "add_world_item_modal.h"
 
 extern mouse_state_t mouse_state;
+static bool show_level_info_file = false;
 
 void imgui_new_frame()
 {
@@ -45,7 +46,7 @@ void create_dockspace(ImGuiIO &io)
     ImGui::End();
 }
 
-void create_menu_bar()
+void create_menu_bar(application_t& app)
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -61,7 +62,10 @@ void create_menu_bar()
             }
             if (ImGui::MenuItem("Save Level"))
             {
-                write_world_map_to_file();
+                write_world_map_to_file(app.cur_level);
+            }
+            if (ImGui::MenuItem("Level file info")) {
+                show_level_info_file = true;
             }
             ImGui::EndMenu();
         }
@@ -153,16 +157,29 @@ void imgui_end_of_frame(ImGuiIO &io)
     }
 }
 
+void create_level_info_window(application_t &app) {
+    ImGui::Begin("Level Info");
+    ImGui::InputInt("Level Number", &app.cur_level.level_num);
+    std::string level_title = "Level: " + std::to_string(app.cur_level.level_num);
+    ImGui::Text(level_title.c_str());
+    ImGui::End();
+}
+
 void create_editor_windows(ImGuiIO &io, application_t &app, float x_offset)
 {
     // for making the entire editor window dockable
     create_dockspace(io);
     // ImGui::ShowDemoWindow();
-    create_menu_bar();
+    create_menu_bar(app);
     // render the framebuffer texture from the render pass used to display the actual world grid
     create_world_map_window(app, x_offset);
 
     update_add_world_item_modal();
 	create_world_item_catalog();
     create_placed_world_items_editor();
+
+    if (show_level_info_file) {
+        create_level_info_window(app);
+    }
 }
+
