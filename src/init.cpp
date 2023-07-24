@@ -260,7 +260,9 @@ void load_level_files() {
     if (settings_file) {
         while (!feof(settings_file)) {
             level_info_t level_info;
-            fgets(level_info.full_path, 1024+256, settings_file);
+            // fgets(level_info.full_path, 1024+256, settings_file);
+            fscanf(settings_file, "%s\n", level_info.full_path);
+            // fgets(level_info.full_path, 1024+256, settings_file);
             if (strcmp(level_info.full_path, "") == 0) {
                 break;
             }
@@ -275,16 +277,8 @@ void init(application_t& app) {
 	init_sdl(app);
     load_level_files();
 	app.running = true;
-    // const char* path = "C:\\Sarthak\\projects\\editor\\build";
-    // memcpy(app.cur_level.output_folder, path, strlen(path));
 	init_rectangle_data();
     // used for separate render pass to render the actual world items in the world map
 	init_fbo_draw_data(app);
 	app.world_grid_fbo = create_framebuffer();
-    // init_world_items();
-    // init_placed_world_items();
-
-	// int transform_handle = create_transform(glm::vec3(400, 400, 0), glm::vec3(0), 0);
-	// glm::vec3 color(1, 0, 0);
-	// app.debug_rec_handle = create_rectangle_render(transform_handle, color, 10, 10, false);
 }
