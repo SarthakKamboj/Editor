@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <map>
 
-// TODO: should change object hierarchy structure to be parent/child
 // TODO: need separate scrolling logic and logic for world map render pass so that the world map render
 // get info like it takes the whole screen
 
@@ -80,16 +79,18 @@ void write_world_items_to_file()
     }
 }
 
-// TODO: remove use of world item handles since those may change with the application
 void write_world_map_to_file(level_info_t& level_info)
 {
-    char output_file[256]{};
-    // sprintf(output_file, "" )
+    if (level_info.level_num < 0) {
+        throw std::runtime_error("level number is less than 0");
+    }
+    char output_file_path[256]{};
+    sprintf(output_file_path, "%s\\level%i.gme", level_info.output_folder, level_info.level_num);
     FILE *out_file;
-    out_file = fopen("level1.txt", "w");
-    std::map<int, int> handle_to_idx_map;
+    out_file = fopen(output_file_path, "w");
     if (out_file)
     {
+        std::map<int, int> handle_to_idx_map;
         fprintf(out_file, "WORLD_ITEMS\n");
         for (int i = 0; i < world_items.size(); i++)
         {

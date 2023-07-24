@@ -17,6 +17,8 @@
 #include <editor_items/world_item.h>
 #include <map>
 
+// TODO: add a screen listing all the possible level data files that exist
+
 #define C_FILE_IO 1
 
 void init_sdl(application_t& app) {
@@ -179,10 +181,9 @@ void init_world_items() {
     }
 }
 
-// TODO: remove use of world item handles since those may change with the application
 void init_placed_world_items() {
     // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\level1.txt";
-    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level1.txt";
+    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
     FILE* file;
     file = fopen(file_path, "r");
 	size_t delim_len = std::string(WORLD_ITEM_TEXT_FILE_DELIM).size();
@@ -194,6 +195,8 @@ void init_placed_world_items() {
         while (!feof(file)) {
             memset(line, 0, 1024);
             fgets(line, 1024, file);
+            if (strcmp(line, "") == 0) continue;
+            if (strcmp(line, "\n") == 0) continue;
             if (strcmp(line, "WORLD_ITEMS\n") == 0) continue;
 			// if (!placed_items_section && (strcmp(line, "\n") == 0)) continue;
             if (!placed_items_section && (strcmp(line, "PLACED_ITEMS\n") != 0)) {
@@ -251,6 +254,9 @@ void init_placed_world_items() {
 void init(application_t& app) {
 	init_sdl(app);
 	app.running = true;
+    const char* path = "C:\\Sarthak\\projects\\editor\\build";
+    memcpy(app.cur_level.output_folder, path, strlen(path));
+    app.cur_level.level_num = 10;
 	init_rectangle_data();
     // used for separate render pass to render the actual world items in the world map
 	init_fbo_draw_data(app);

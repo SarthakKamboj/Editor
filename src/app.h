@@ -20,7 +20,7 @@ struct application_t {
 	opengl_object_data fbo_draw_data;
 	int debug_rec_handle = -1;
 	ImGuiIO* io;
-    level_info_t cur_level;
+    level_info_t cur_level{};
 };
 
 void init(application_t& app);
