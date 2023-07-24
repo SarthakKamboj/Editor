@@ -51,7 +51,5 @@ namespace conversion {
         SDL_GetWindowPosition(app.window, &x, &y);
         entire_window_top_left_screen_pos.x = x;
         entire_window_top_left_screen_pos.y = y;
-
-        std::cout << entire_window_top_left_screen_pos.x << ",  " << entire_window_top_left_screen_pos.y << std::endl;
 	}
 }
