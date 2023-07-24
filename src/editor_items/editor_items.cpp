@@ -110,10 +110,6 @@ void create_world_map_window(application_t &app, float x_offset)
             bottom_left_world_grid_tex_pos.x = top_left_window.x;
             bottom_left_world_grid_tex_pos.y = top_left_window.y - tex_height - WINDOW_TITLE_BAR_HEIGHT;
 
-            // debug_transform.position.x = bottom_left_world_grid_tex_pos.x;
-            // debug_transform.position.y = bottom_left_world_grid_tex_pos.y;
-            // debug_transform.position.z = 0;
-
             ImVec2 mouse_pos_rel_tex;
             mouse_pos_rel_tex.x = mouse_state.x - bottom_left_world_grid_tex_pos.x;
             mouse_pos_rel_tex.y = mouse_state.y - bottom_left_world_grid_tex_pos.y;
@@ -159,8 +155,6 @@ void imgui_end_of_frame(ImGuiIO &io)
 
 void create_level_info_window(application_t &app) {
     ImGui::Begin("Level Info");
-    // ImGui::InputInt("Level Number", &app.cur_level.level_num);
-    // std::string level_title = "Level: " + std::to_string(app.cur_level.level_num);
     ImGui::Text(app.cur_level.output_folder);
     ImGui::Text(app.cur_level.file_name);
     ImGui::End();

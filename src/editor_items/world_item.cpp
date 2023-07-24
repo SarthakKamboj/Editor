@@ -79,10 +79,8 @@ void write_world_map_to_file(level_info_t& level_info)
 {
     assert(level_info.output_folder[0] != 0);
     assert(level_info.file_name[0] != 0);
-    // char output_file_path[256]{};
-    // sprintf(output_file_path, "%s\\%s.gme", level_info.output_folder, level_info.file_name);
+
     FILE *out_file;
-    // out_file = fopen(output_file_path, "w");
     out_file = fopen(level_info.full_path, "w");
     if (out_file)
     {

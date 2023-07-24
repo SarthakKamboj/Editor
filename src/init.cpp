@@ -260,9 +260,7 @@ void load_level_files() {
     if (settings_file) {
         while (!feof(settings_file)) {
             level_info_t level_info;
-            // fgets(level_info.full_path, 1024+256, settings_file);
             fscanf(settings_file, "%s\n", level_info.full_path);
-            // fgets(level_info.full_path, 1024+256, settings_file);
             if (strcmp(level_info.full_path, "") == 0) {
                 break;
             }

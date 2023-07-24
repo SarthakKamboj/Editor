@@ -23,7 +23,6 @@ void loader(application_t& app) {
         if (ImGui::Button(level_info.full_path)) {
             FILE* file = fopen(level_info.full_path, "r");
             if (!file) {
-                // TODO: also have to erase it from the file
                 delete_path_from_load_config(level_info.full_path);
                 level_infos.erase(level_infos.begin()+i, level_infos.begin()+i+1);
                 i--;
@@ -66,8 +65,6 @@ void create_new_level_file_modal() {
             else {
                 closedir(dir);
                 sprintf(new_level_info.full_path, "%s\\%s.gme", new_level_info.output_folder, new_level_info.file_name);
-                // level_info_t level_info;
-                // memcpy(level_info, new_level_info, sizeof(level_info_t));
                 write_path_to_load_config(new_level_info.full_path);
                 level_infos.push_back(new_level_info);
                 set_level_in_app(app, new_level_info);
@@ -107,12 +104,11 @@ void delete_path_from_load_config(const char* path) {
     const char* load_settings_file = "./load_settings.gmeconfig";
     FILE* settings_file = fopen(load_settings_file, "r");
     if (settings_file) {
-        // fprintf(settings_file, "%s\n", path);
         while (!feof(settings_file)) {
             char line[1024];
             fgets(line, 1024, settings_file);
             if (strcmp(line, path) != 0) {
-                fprintf(tmp, "%s\n", path);
+                fprintf(tmp, "%s", line);
             }
         }
         fclose(settings_file);
