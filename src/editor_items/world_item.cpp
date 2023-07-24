@@ -14,8 +14,6 @@
 // TODO: need separate scrolling logic and logic for world map render pass so that the world map render
 // get info like it takes the whole screen
 
-#define C_FILE_IO 1
-
 std::vector<world_item_t> world_items;
 std::vector<placed_world_item_t> placed_items;
 
@@ -57,8 +55,6 @@ int get_world_item_handle(const char *path, int squares_width, int squares_heigh
     }
     return -1;
 }
-
-#if C_FILE_IO
 
 void write_world_items_to_file()
 {
@@ -114,60 +110,6 @@ void write_world_map_to_file(level_info_t& level_info)
         throw std::runtime_error("could not open world items file");
     }
 }
-
-#else
-
-void write_world_items_to_file()
-{
-    std::ofstream out_file;
-    out_file.open("world_items.txt");
-    if (out_file.is_open())
-    {
-        for (world_item_t &world_item : world_items)
-        {
-            texture_t &tex = *get_texture(world_item.texture_handle);
-            out_file << world_item.world_item_name << WORLD_ITEM_TEXT_FILE_DELIM << tex.path << WORLD_ITEM_TEXT_FILE_DELIM << std::to_string(world_item.grid_squares_width) << WORLD_ITEM_TEXT_FILE_DELIM << std::to_string(world_item.grid_squares_height) << "\n";
-        }
-        out_file.close();
-    }
-    else
-    {
-        throw std::runtime_error("could not open world items file");
-    }
-}
-
-// TODO: remove use of world item handles since those may change with the application
-void write_world_map_to_file()
-{
-    std::ofstream out_file;
-    out_file.open("level1.txt");
-    std::map<int, int> handle_to_idx_map;
-    if (out_file.is_open())
-    {
-        out_file << "WORLD_ITEMS" << std::endl;
-        for (int i = 0; i < world_items.size(); i++)
-        {
-            world_item_t &world_item = world_items[i];
-            texture_t *ptr = get_texture(world_item.texture_handle);
-            assert(ptr != NULL);
-            texture_t &tex = *ptr;
-            out_file << world_item.world_item_name << WORLD_ITEM_TEXT_FILE_DELIM << tex.path << WORLD_ITEM_TEXT_FILE_DELIM << std::to_string(world_item.grid_squares_width) << WORLD_ITEM_TEXT_FILE_DELIM << std::to_string(world_item.grid_squares_height) << "\n";
-            handle_to_idx_map[world_item.handle] = i;
-        }
-
-        out_file << "\nPLACED_ITEMS" << std::endl;
-        for (placed_world_item_t &placed_item : placed_items)
-        {
-            out_file << handle_to_idx_map[placed_item.world_item_handle] << WORLD_ITEM_TEXT_FILE_DELIM << placed_item.bottom_left_grid_square_pos.x << WORLD_ITEM_TEXT_FILE_DELIM << placed_item.bottom_left_grid_square_pos.y << "\n";
-        }
-        out_file.close();
-    }
-    else
-    {
-        throw std::runtime_error("could not open world items file");
-    }
-}
-#endif
 
 world_item_t *get_world_item(int world_handle)
 {
