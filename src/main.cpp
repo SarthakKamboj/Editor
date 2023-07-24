@@ -17,6 +17,7 @@
 #include <editor_items/world_item.h>
 #include "editor_items/gridline.h"
 #include "editor_items/editor_items.h"
+#include "editor_items/loader.h"
 
 
 /*
@@ -52,19 +53,12 @@ int main(int argc, char** argv) {
 		create_gridline(WINDOW_WIDTH, row * GRID_SQUARE_WIDTH, dir_t::ROW);
 	}
 	
-
 	camera = create_camera();
 
     // scroll offset for the world grid editor 
 	float x_offset = 0.f;
 
-	glm::vec3 selected_color(1,0,0);
-	// int debug_transform_handle = create_transform(glm::vec3(0.f), glm::vec3(1.f), 0.f);
-	// debug_bottom_left_world_grid_tex = create_rectangle_render(debug_transform_handle, selected_color, -1, 10, 10, false, 0);
-
 	while (app.running) {
-
-	    // transform_t& debug_transform = *get_transform(debug_transform_handle);
 
         imgui_new_frame();
 		ImGuiIO& io = ImGui::GetIO();
@@ -75,7 +69,13 @@ int main(int argc, char** argv) {
 			app.running = false;
 		}
 
-        create_editor_windows(io, app, x_offset) ;
+        // for making the entire editor window dockable
+        create_dockspace(io);
+        if (app.state == application_state::EDITOR) {
+            create_editor_windows(io, app, x_offset) ;
+        } else {
+            loader(app);
+        }
 
 		update(camera, key_state, x_offset);
 		render(app, camera);

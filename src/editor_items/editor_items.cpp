@@ -159,16 +159,15 @@ void imgui_end_of_frame(ImGuiIO &io)
 
 void create_level_info_window(application_t &app) {
     ImGui::Begin("Level Info");
-    ImGui::InputInt("Level Number", &app.cur_level.level_num);
-    std::string level_title = "Level: " + std::to_string(app.cur_level.level_num);
-    ImGui::Text(level_title.c_str());
+    // ImGui::InputInt("Level Number", &app.cur_level.level_num);
+    // std::string level_title = "Level: " + std::to_string(app.cur_level.level_num);
+    ImGui::Text(app.cur_level.output_folder);
+    ImGui::Text(app.cur_level.file_name);
     ImGui::End();
 }
 
 void create_editor_windows(ImGuiIO &io, application_t &app, float x_offset)
 {
-    // for making the entire editor window dockable
-    create_dockspace(io);
     // ImGui::ShowDemoWindow();
     create_menu_bar(app);
     // render the framebuffer texture from the render pass used to display the actual world grid

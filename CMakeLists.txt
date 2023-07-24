@@ -38,6 +38,7 @@ add_executable(${PROJECT_NAME}
     src/editor_items/gridline.cpp
     src/editor_items/world_item.cpp
     src/editor_items/editor_items.cpp
+    src/editor_items/loader.cpp
 
     # imgui files
     external/imgui-docking/imgui_demo.cpp

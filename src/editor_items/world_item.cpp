@@ -77,13 +77,13 @@ void write_world_items_to_file()
 
 void write_world_map_to_file(level_info_t& level_info)
 {
-    if (level_info.level_num < 0) {
-        throw std::runtime_error("level number is less than 0");
-    }
-    char output_file_path[256]{};
-    sprintf(output_file_path, "%s\\level%i.gme", level_info.output_folder, level_info.level_num);
+    assert(level_info.output_folder[0] != 0);
+    assert(level_info.file_name[0] != 0);
+    // char output_file_path[256]{};
+    // sprintf(output_file_path, "%s\\%s.gme", level_info.output_folder, level_info.file_name);
     FILE *out_file;
-    out_file = fopen(output_file_path, "w");
+    // out_file = fopen(output_file_path, "w");
+    out_file = fopen(level_info.full_path, "w");
     if (out_file)
     {
         std::map<int, int> handle_to_idx_map;

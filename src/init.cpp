@@ -16,8 +16,10 @@
 #include <string>
 #include <editor_items/world_item.h>
 #include <map>
+#include <vector>
 
 // TODO: add a screen listing all the possible level data files that exist
+std::vector<level_info_t> level_infos;
 
 #define C_FILE_IO 1
 
@@ -157,7 +159,8 @@ void init_fbo_draw_data(application_t& app) {
 
 void init_world_items() {
     // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\world_items.txt";
-    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\world_items.txt";
+    // const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\world_items.txt";
+    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
     FILE* file;
     file = fopen(file_path, "r");
     std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
@@ -181,9 +184,9 @@ void init_world_items() {
     }
 }
 
-void init_placed_world_items() {
+void init_placed_world_items(const char* file_path) {
     // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\level1.txt";
-    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
+    // const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
     FILE* file;
     file = fopen(file_path, "r");
 	size_t delim_len = std::string(WORLD_ITEM_TEXT_FILE_DELIM).size();
@@ -251,18 +254,35 @@ void init_placed_world_items() {
     }
 }
 
+void load_level_files() {
+    const char* load_settings_file = "./load_settings.gmeconfig";
+    FILE* settings_file = fopen(load_settings_file, "r");
+    if (settings_file) {
+        while (!feof(settings_file)) {
+            level_info_t level_info;
+            fgets(level_info.full_path, 1024+256, settings_file);
+            if (strcmp(level_info.full_path, "") == 0) {
+                break;
+            }
+            create_level_info(level_info);
+            level_infos.push_back(level_info);
+        }
+        fclose(settings_file);
+    }
+}
+
 void init(application_t& app) {
 	init_sdl(app);
+    load_level_files();
 	app.running = true;
-    const char* path = "C:\\Sarthak\\projects\\editor\\build";
-    memcpy(app.cur_level.output_folder, path, strlen(path));
-    app.cur_level.level_num = 10;
+    // const char* path = "C:\\Sarthak\\projects\\editor\\build";
+    // memcpy(app.cur_level.output_folder, path, strlen(path));
 	init_rectangle_data();
     // used for separate render pass to render the actual world items in the world map
 	init_fbo_draw_data(app);
 	app.world_grid_fbo = create_framebuffer();
-    init_world_items();
-    init_placed_world_items();
+    // init_world_items();
+    // init_placed_world_items();
 
 	// int transform_handle = create_transform(glm::vec3(400, 400, 0), glm::vec3(0), 0);
 	// glm::vec3 color(1, 0, 0);
