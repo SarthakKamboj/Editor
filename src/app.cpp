@@ -18,12 +18,19 @@ void update(camera_t& camera, key_state_t& key_state, float& x_offset) {
 
 }
 
-void set_level_in_app(application_t& app, level_info_t& level_info) {
+void load_level_in_app(application_t& app, level_info_t& level_info) {
     memcpy(app.cur_level.file_name, level_info.file_name, strlen(level_info.file_name));
     memcpy(app.cur_level.full_path, level_info.full_path, strlen(level_info.full_path));
     memcpy(app.cur_level.output_folder, level_info.output_folder, strlen(level_info.output_folder));
     init_placed_world_items(level_info.full_path);
     app.state = application_state::EDITOR;
+}
+
+void unload_level_in_app(application_t& app) {
+    clear_world_items();
+    clear_placed_items();
+    memset(&app.cur_level, 0, sizeof(level_info_t));
+    app.state = application_state::LOADER;
 }
 
 void create_level_info(level_info_t& level_info) {

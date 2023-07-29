@@ -67,6 +67,9 @@ void create_menu_bar(application_t& app)
             if (ImGui::MenuItem("Level file info")) {
                 show_level_info_file = true;
             }
+            if (ImGui::MenuItem("Load New Level")) {
+                unload_level_in_app(app);
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

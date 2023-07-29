@@ -28,7 +28,7 @@ void loader(application_t& app) {
                 i--;
                 continue;
             }
-            set_level_in_app(app, level_info);
+            load_level_in_app(app, level_info);
             fclose(file);
         }
     }
@@ -67,7 +67,7 @@ void create_new_level_file_modal() {
                 sprintf(new_level_info.full_path, "%s\\%s.gme", new_level_info.output_folder, new_level_info.file_name);
                 write_path_to_load_config(new_level_info.full_path);
                 level_infos.push_back(new_level_info);
-                set_level_in_app(app, new_level_info);
+                load_level_in_app(app, new_level_info);
                 new_file_modal_opened = false;
                 ImGui::CloseCurrentPopup();
             }
@@ -80,7 +80,6 @@ void create_new_level_file_modal() {
         if (!works) {
             ImGui::Text(error_text);
         }
-
 		ImGui::EndPopup();
     }
 
@@ -89,10 +88,22 @@ void create_new_level_file_modal() {
 
 void write_path_to_load_config(const char* path) {
     const char* load_settings_file = "./load_settings.gmeconfig";
-    FILE* settings_file = fopen(load_settings_file, "a+");
+    FILE* settings_file = fopen(load_settings_file, "r+");
     if (settings_file) {
+        while (!feof(settings_file)) {
+            char line[1024];
+            fscanf(settings_file, "%s\n", line);
+            if (strcmp(line, path) == 0) {
+                fclose(settings_file);
+                return;
+            }
+        }
         fprintf(settings_file, "%s\n", path);
         fclose(settings_file);
+
+        FILE* new_file = fopen(path, "w");
+        assert(new_file != NULL);
+        fclose(new_file);
     }
 }
 
@@ -106,9 +117,10 @@ void delete_path_from_load_config(const char* path) {
     if (settings_file) {
         while (!feof(settings_file)) {
             char line[1024];
-            fgets(line, 1024, settings_file);
+            // fgets(line, 1024, settings_file);
+            fscanf(settings_file, "%s\n", line);
             if (strcmp(line, path) != 0) {
-                fprintf(tmp, "%s", line);
+                fprintf(tmp, "%s\n", line);
             }
         }
         fclose(settings_file);

@@ -165,7 +165,7 @@ void init_world_items() {
     file = fopen(file_path, "r");
     std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
 	size_t delim_len = delim.size();
-    static std::string world_item_format = "%1023s " + delim + " %1023s " + delim + " %i " + delim + " %i\n";
+    static std::string world_item_format = "%1023s" + delim + "%1023s" + delim + "%i" + delim + "%i\n";
     static const char* world_item_format_char = world_item_format.c_str();
     if (file) {
         while (!feof(file)) {
@@ -205,7 +205,7 @@ void init_placed_world_items(const char* file_path) {
             if (!placed_items_section && (strcmp(line, "PLACED_ITEMS\n") != 0)) {
                 std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
                 size_t delim_len = delim.size();
-                static std::string world_item_format = "%1023s " + delim + " %1023s " + delim + " %i " + delim + " %i\n";
+                static std::string world_item_format = "%1023s" + delim + "%1023s" + delim + "%i" + delim + "%i\n";
                 static const char* world_item_format_char = world_item_format.c_str();
 
                 char name[1024]{};
@@ -213,11 +213,10 @@ void init_placed_world_items(const char* file_path) {
                 int width = 0;
                 int height = 0;
                 sscanf(line, world_item_format_char, name, path, &width, &height);
-                std::string name_str(name);
 
                 int handle = get_world_item_handle(path, width, height);
                 if (handle == -1) {
-                    std::string title("prev item");
+                    std::string name_str(name);
                     idx_to_handle_map[i] = create_world_item(path, width, height, name_str);
                 } else {
                     idx_to_handle_map[i] = handle;

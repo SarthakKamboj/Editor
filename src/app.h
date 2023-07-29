@@ -35,5 +35,6 @@ struct application_t {
 
 void init(application_t& app);
 void init_placed_world_items(const char* path);
-void set_level_in_app(application_t& app, level_info_t& level_info);
+void load_level_in_app(application_t& app, level_info_t& level_info);
+void unload_level_in_app(application_t& app);
 void update(camera_t& camera, key_state_t& key_state, float& x_offset);

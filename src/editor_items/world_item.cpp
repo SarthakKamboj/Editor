@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <map>
 
+// TODO: search for memory leaks
+
 // TODO: need separate scrolling logic and logic for world map render pass so that the world map render
 // get info like it takes the whole screen
 
@@ -21,7 +23,6 @@ int world_item_t::selected_world_item_handle = world_item_t::NONE_SELECTED;
 
 int create_world_item(const char *path, int squares_width, int squares_height, std::string &name)
 {
-
     int existing_handle = get_world_item_handle(path, squares_width, squares_height);
     if (existing_handle != -1)
     {
@@ -56,56 +57,10 @@ int get_world_item_handle(const char *path, int squares_width, int squares_heigh
     return -1;
 }
 
-void write_world_items_to_file()
-{
-    FILE *out_file;
-    out_file = fopen("world_items.txt", "w");
-    if (out_file)
-    {
-        for (world_item_t &world_item : world_items)
-        {
-            texture_t &tex = *get_texture(world_item.texture_handle);
-            fprintf(out_file, "%s %s %s %s %i %s %i\n", world_item.world_item_name.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, tex.path.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_width, WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_height);
-        }
-        fclose(out_file);
-    }
-    else
-    {
-        throw std::runtime_error("could not open world items file");
-    }
-}
-
-void write_world_map_to_file(level_info_t& level_info)
-{
-    assert(level_info.output_folder[0] != 0);
-    assert(level_info.file_name[0] != 0);
-
-    FILE *out_file;
-    out_file = fopen(level_info.full_path, "w");
-    if (out_file)
-    {
-        std::map<int, int> handle_to_idx_map;
-        fprintf(out_file, "WORLD_ITEMS\n");
-        for (int i = 0; i < world_items.size(); i++)
-        {
-            world_item_t &world_item = world_items[i];
-            texture_t *ptr = get_texture(world_item.texture_handle);
-            assert(ptr != NULL);
-            texture_t &tex = *ptr;
-            fprintf(out_file, "%s %s %s %s %i %s %i\n", world_item.world_item_name.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, tex.path.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_width, WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_height);
-            handle_to_idx_map[world_item.handle] = i;
-        }
-
-        fprintf(out_file, "PLACED_ITEMS\n");
-        for (placed_world_item_t &placed_item : placed_items)
-        {
-            fprintf(out_file, "%i %s %i %s %i\n", handle_to_idx_map[placed_item.world_item_handle], WORLD_ITEM_TEXT_FILE_DELIM, (int)placed_item.bottom_left_grid_square_pos.x, WORLD_ITEM_TEXT_FILE_DELIM, (int)placed_item.bottom_left_grid_square_pos.y);
-        }
-        fclose(out_file);
-    }
-    else
-    {
-        throw std::runtime_error("could not open world items file");
+void clear_world_items() {
+    world_item_t::selected_world_item_handle = world_item_t::NONE_SELECTED;
+    for (int i = 0; i < world_items.size(); i++) {
+        remove_world_item(world_items[i].handle);
     }
 }
 
@@ -241,6 +196,67 @@ void remove_placed_world_item(int placed_handle)
     placed_items.erase(placed_items.begin() + idx_to_remove, placed_items.begin() + idx_to_remove + 1);
 }
 
+void clear_placed_items() {
+    for (int i = 0; i < placed_items.size(); i++) {
+        remove_placed_world_item(placed_items[i].handle);
+    }
+}
+
+// SERIALIZATION FUNCTIONS
+
+void write_world_items_to_file()
+{
+    FILE *out_file;
+    out_file = fopen("world_items.txt", "w");
+    if (out_file)
+    {
+        for (world_item_t &world_item : world_items)
+        {
+            texture_t &tex = *get_texture(world_item.texture_handle);
+            fprintf(out_file, "%s%s%s%s%i%s%i\n", world_item.world_item_name.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, tex.path.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_width, WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_height);
+        }
+        fclose(out_file);
+    }
+    else
+    {
+        throw std::runtime_error("could not open world items file");
+    }
+}
+
+void write_world_map_to_file(level_info_t& level_info)
+{
+    assert(level_info.output_folder[0] != 0);
+    assert(level_info.file_name[0] != 0);
+
+    FILE *out_file;
+    out_file = fopen(level_info.full_path, "w");
+    if (out_file)
+    {
+        std::map<int, int> handle_to_idx_map;
+        fprintf(out_file, "WORLD_ITEMS\n");
+        for (int i = 0; i < world_items.size(); i++)
+        {
+            world_item_t &world_item = world_items[i];
+            texture_t *ptr = get_texture(world_item.texture_handle);
+            assert(ptr != NULL);
+            texture_t &tex = *ptr;
+            fprintf(out_file, "%s%s%s%s%i%s%i\n", world_item.world_item_name.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, tex.path.c_str(), WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_width, WORLD_ITEM_TEXT_FILE_DELIM, world_item.grid_squares_height);
+            handle_to_idx_map[world_item.handle] = i;
+        }
+
+        fprintf(out_file, "PLACED_ITEMS\n");
+        for (placed_world_item_t &placed_item : placed_items)
+        {
+            fprintf(out_file, "%i%s%i%s%i\n", handle_to_idx_map[placed_item.world_item_handle], WORLD_ITEM_TEXT_FILE_DELIM, (int)placed_item.bottom_left_grid_square_pos.x, WORLD_ITEM_TEXT_FILE_DELIM, (int)placed_item.bottom_left_grid_square_pos.y);
+        }
+        fclose(out_file);
+    }
+    else
+    {
+        throw std::runtime_error("could not open world items file");
+    }
+}
+
 // EDITOR FUNCTIONS
 
 void create_world_item_catalog()
@@ -269,7 +285,7 @@ void create_world_item_catalog()
         ImGui::Text(height_text.c_str());
         std::string handle_text = "Handle: " + std::to_string(item.handle);
         ImGui::Text(handle_text.c_str());
-        if (world_item_t::selected_world_item_handle != i)
+        if (world_item_t::selected_world_item_handle != item.handle)
         {
             bool clicked_on_select = ImGui::Button("Select Item");
             if (clicked_on_select)

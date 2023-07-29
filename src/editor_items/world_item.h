@@ -24,16 +24,20 @@ struct placed_world_item_t {
 };
 
 int create_world_item(const char* path, int squares_width, int squares_height, std::string& name);
-void write_world_items_to_file();
 world_item_t* get_world_item(int world_handle);
 int get_world_item_handle(const char* path, int squares_width, int squares_height);
 void remove_world_item(int world_handle);
+void clear_world_items();
 
 // pass in the world item handle and the bottom left grid square
 int place_world_item(int world_item_handle, const glm::vec2& bottom_left_grid_square_pos);
 placed_world_item_t* get_placed_world_item(int placed_handle);
 void remove_placed_world_item(glm::vec2 grid_square_pos);
 void remove_placed_world_item(int placed_handle);
+void clear_placed_items();
+
+// SERIALIZATION FUNCTION
+void write_world_items_to_file();
 void write_world_map_to_file(level_info_t& level_info);
 
 // EDITOR FUNCTIONS
