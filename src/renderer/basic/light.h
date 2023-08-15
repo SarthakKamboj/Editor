@@ -21,4 +21,4 @@ void init_light_data(application_t& app);
 int create_light(glm::vec3 pos, glm::vec3 color, float radius);
 void set_light_in_shader(const light_t& light);
 void render_light(const light_t& light);
-void render_lights(camera_t& camera);
+void render_lights(camera_t& camera, float ambient);

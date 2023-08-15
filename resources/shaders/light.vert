@@ -13,6 +13,4 @@ out float ratio_from_center;
 void main() {
     ratio_from_center = in_tex.x;
 	gl_Position = projection * view * model * vec4(in_pos, 1.0);
-	gl_Position = vec4(in_pos, 1.0);
-	gl_Position = projection * view * model * vec4(in_pos, 1.0);
 }

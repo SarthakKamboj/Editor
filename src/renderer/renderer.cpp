@@ -16,9 +16,10 @@ void render(application_t& app, camera_t& camera, editor_t& editor) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	bind_framebuffer(app.light_map_fbo);
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glClearColor(0.f, 0.f, 0.f, 1.f);
+	float ambient = 0.1f;
+	glClearColor(ambient, ambient, ambient, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-	render_lights(camera);
+	render_lights(camera, ambient);
 
     // quads render pass
 	bind_framebuffer(app.main_fbo);

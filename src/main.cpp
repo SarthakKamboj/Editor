@@ -58,10 +58,10 @@ int main(int argc, char** argv) {
     // scroll offset for the world grid editor 
 	float x_offset = 0.f;
 
-	create_light(glm::vec3(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 0), glm::vec3(1), 50.f);
+	create_light(glm::vec3(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 0), glm::vec3(1), 200.f);
+	create_light(glm::vec3((WINDOW_WIDTH/2) - 100, WINDOW_HEIGHT/2, 0), glm::vec3(0,1,0), 100.f);
 
 	while (application.running) {
-		std::cout << "frame start" << std::endl;
         // imgui_new_frame();
 		// ImGuiIO& io = ImGui::GetIO();
 		start_of_frame(application);

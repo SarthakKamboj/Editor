@@ -45,6 +45,7 @@ void init_quad_data() {
 	glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
 	shader_set_mat4(quad_shader, "projection", projection);
     shader_set_int(quad_shader, "tex", 0);
+    shader_set_int(quad_t::quad_shader, "light_map", 1);
 }
 
 int create_quad(int transform_handle, glm::vec3& color, int tex_handle, float width, float height, bool wireframe, float tex_influence) {
@@ -134,7 +135,6 @@ void render_quad(int quad_handle) {
 void render_quads(camera_t& camera, application_t& app) {
     glm::mat4 view_matrix = get_view_matrix(camera);
 	shader_set_mat4(quad_t::quad_shader, "view", view_matrix);
-    shader_set_int(quad_t::quad_shader, "light_map", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, app.light_map_fbo.color_texture);
 	for (const quad_t& quad : quads) {
