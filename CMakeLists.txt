@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.22.1)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 project(editor)
 
 message("project editor")
@@ -28,17 +33,20 @@ add_executable(${PROJECT_NAME}
     src/transform/transform.cpp
     src/renderer/renderer.cpp
     src/renderer/camera.cpp
-    src/renderer/basic/shape_renders.cpp
-    src/renderer/opengl/buffers.cpp
-    src/renderer/opengl/object_data.cpp
-    src/renderer/opengl/resources.cpp
-    src/renderer/opengl/vertex.cpp
+    src/renderer/basic/quad.cpp
+    src/renderer/basic/light.cpp
+    src/renderer/graphics/buffers.cpp
+    src/renderer/graphics/mesh.cpp
+    src/renderer/graphics/render_resources.cpp
+    src/renderer/graphics/vertex.cpp
     src/input/input.cpp
-    src/editor_items/add_world_item_modal.cpp
-    src/editor_items/gridline.cpp
-    src/editor_items/world_item.cpp
-    src/editor_items/editor_items.cpp
-    src/editor_items/loader.cpp
+    src/editor/add_world_item_modal.cpp
+    src/editor/editor_windows.cpp
+    src/editor/editor.cpp
+    src/editor/gridline.cpp
+    src/editor/level_info.cpp
+    src/editor/world_item.cpp
+    src/editor/loader.cpp
 
     # imgui files
     external/imgui-docking/imgui_demo.cpp

@@ -5,25 +5,24 @@
 #include "constants.h"
 #include "app.h"
 #include "SDL.h"
-#include "renderer/opengl/buffers.h"
-#include "renderer/opengl/resources.h"
-#include "renderer/opengl/vertex.h"
-#include "renderer/basic/shape_renders.h"
+#include "renderer/graphics/buffers.h"
+#include "renderer/graphics/render_resources.h"
+#include "renderer/graphics/vertex.h"
+#include "renderer/basic/quad.h"
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "utils/time.h"
 #include <fstream>
 #include <string>
-#include <editor_items/world_item.h>
+#include "editor/world_item.h"
 #include <map>
 #include <vector>
+#include "renderer/basic/light.h"
 
 // TODO: add a screen listing all the possible level data files that exist
-std::vector<level_info_t> level_infos;
 
-#define C_FILE_IO 1
-
-void init_sdl(application_t& app) {
+void init_sdl(application_t& app, float window_width, float window_height) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		const char* sdl_error = SDL_GetError();
 		std::string error_msg = "SDL could not be initialized: " + std::string(sdl_error);
@@ -37,7 +36,7 @@ void init_sdl(application_t& app) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-	SDL_Window* window = SDL_CreateWindow("window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
 	if (window == NULL) {
 		const char* sdl_error = SDL_GetError();
@@ -56,226 +55,40 @@ void init_sdl(application_t& app) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
+ 
+	app.window.sdl_window = window;
+    app.window.width = window_width;
+    app.window.height = window_height;
+    app.window.context = context;
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-
-	ImGui::StyleColorsDark();
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-	}
-
-	const char* glsl_version = "#version 410";
-	ImGui_ImplSDL2_InitForOpenGL(window, context);
-	ImGui_ImplOpenGL3_Init(glsl_version);
-
-	app.io = &io;
-
-	app.window = window;
+    // init_editor(app);
 }
 
-void init_rectangle_data() {
-	opengl_object_data& data = rectangle_render_t::obj_data;
 
-	vertex_t vertices[4];
-    vertices[0] = create_vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0,1,1), glm::vec2(1,1)); // top right
-	vertices[1] = create_vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0,0,1), glm::vec2(1,0)); // bottom right
-	vertices[2] = create_vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0,1,0), glm::vec2(0,0)); // bottom left
-	vertices[3] = create_vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(1,0,0), glm::vec2(0,1)); // top left
-
-	data.vbo = create_vbo((float*)vertices, sizeof(vertices));
-
-	unsigned int indices[] = {
-		0, 1, 3,
-		1, 2, 3
-	};
-
-	data.ebo = create_ebo(indices, sizeof(indices));
-	data.vao = create_vao();
-
-	bind_vao(data.vao);
-	vao_enable_attribute(data.vao, data.vbo, 0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), offsetof(vertex_t, position));
-	vao_enable_attribute(data.vao, data.vbo, 1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), offsetof(vertex_t, color));
-	vao_enable_attribute(data.vao, data.vbo, 2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), offsetof(vertex_t, tex_coord));
-	bind_ebo(data.ebo);
-	unbind_vao();
-	unbind_ebo();
-
-	data.shader = create_shader((SHADERS_PATH + "\\rectangle.vert").c_str(), (SHADERS_PATH + "\\rectangle.frag").c_str());
-	shader_set_mat4(data.shader, "model", glm::mat4(1));
-	glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
-	shader_set_mat4(data.shader, "projection", projection);
-    shader_set_int(data.shader, "tex", 0);
-}
-
-void init_fbo_draw_data(application_t& app) {
-	opengl_object_data& data = app.fbo_draw_data;
-
-	vertex_t vertices[4];
-	float val = 1.f;
-	vertices[0] = create_vertex(glm::vec3(val, val, 0.0f), glm::vec3(0,1,1), glm::vec2(1.0f, 1.f)); // top right
-	vertices[1] = create_vertex(glm::vec3(val, -val, 0.0f), glm::vec3(0,0,1), glm::vec2(1.0f, 0.f)); // bottom right
-	vertices[2] = create_vertex(glm::vec3(-val, -val, 0.0f), glm::vec3(0,1,0), glm::vec2(0.f, 0.f)); // bottom left
-	vertices[3] = create_vertex(glm::vec3(-val, val, 0.0f), glm::vec3(1,0,0), glm::vec2(0.f, 1.0f)); // top left
-
-	data.vbo = create_vbo((float*)vertices, sizeof(vertices));
-
-	unsigned int indices[] = {
-		0, 1, 3,
-		1, 2, 3
-	};
-
-	data.ebo = create_ebo(indices, sizeof(indices));
-	data.vao = create_vao();
-
-	bind_vao(data.vao);
-	vao_enable_attribute(data.vao, data.vbo, 0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), offsetof(vertex_t, position));
-	vao_enable_attribute(data.vao, data.vbo, 1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), offsetof(vertex_t, tex_coord));
-	bind_ebo(data.ebo);
-	unbind_vao();
-	unbind_ebo();
-
-	data.shader = create_shader((SHADERS_PATH + "\\fbo.vert").c_str(), (SHADERS_PATH + "\\fbo.frag").c_str());
-	shader_set_mat4(data.shader, "model", glm::mat4(1));
-	glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
-	shader_set_mat4(data.shader, "projection", projection);
-	transform_t transform;
-	transform.position.x = WINDOW_WIDTH / 2;
-	transform.position.y = WINDOW_HEIGHT / 2;
-	glm::mat4 model_matrix = get_model_matrix(transform);
-	shader_set_mat4(data.shader, "model", model_matrix);
-	shader_set_int(data.shader, "fbo_texture", 0);
-}
-
-void init_world_items() {
-    // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\world_items.txt";
-    // const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\world_items.txt";
-    const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
-    FILE* file;
-    file = fopen(file_path, "r");
-    std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
-	size_t delim_len = delim.size();
-    static std::string world_item_format = "%1023s" + delim + "%1023s" + delim + "%i" + delim + "%i\n";
-    static const char* world_item_format_char = world_item_format.c_str();
-    if (file) {
-        while (!feof(file)) {
-            char name[1024]{};
-            char path[1024]{};
-            int width = 0;
-            int height = 0;
-            fscanf(file, world_item_format_char, name, path, &width, &height);
-            std::string name_str(name);
-            create_world_item(path, width, height, name_str);
-        }
-        // file.close();
-        fclose(file);
-    } else {
-        std::cout << "could not open world items file" << std::endl;
-    }
-}
-
-void init_placed_world_items(const char* file_path) {
-    // const char* file_path = "C:\\Sarthak\\projects\\Platformer\\Editor\\level1.txt";
-    // const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
-    FILE* file;
-    file = fopen(file_path, "r");
-	size_t delim_len = std::string(WORLD_ITEM_TEXT_FILE_DELIM).size();
-    std::map<int, int> idx_to_handle_map;
-    int i = 0;
-    if (file) {
-        bool placed_items_section = false;
-        char line[1024];
-        while (!feof(file)) {
-            memset(line, 0, 1024);
-            fgets(line, 1024, file);
-            if (strcmp(line, "") == 0) continue;
-            if (strcmp(line, "\n") == 0) continue;
-            if (strcmp(line, "WORLD_ITEMS\n") == 0) continue;
-			// if (!placed_items_section && (strcmp(line, "\n") == 0)) continue;
-            if (!placed_items_section && (strcmp(line, "PLACED_ITEMS\n") != 0)) {
-                std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
-                size_t delim_len = delim.size();
-                static std::string world_item_format = "%1023s" + delim + "%1023s" + delim + "%i" + delim + "%i\n";
-                static const char* world_item_format_char = world_item_format.c_str();
-
-                char name[1024]{};
-                char path[1024]{};
-                int width = 0;
-                int height = 0;
-                sscanf(line, world_item_format_char, name, path, &width, &height);
-
-                int handle = get_world_item_handle(path, width, height);
-                if (handle == -1) {
-                    std::string name_str(name);
-                    idx_to_handle_map[i] = create_world_item(path, width, height, name_str);
-                } else {
-                    idx_to_handle_map[i] = handle;
-                }
-				i++;
-                continue;
-            }
-            if (strcmp(line, "PLACED_ITEMS\n") == 0) {
-                placed_items_section = true;
-                continue;
-            }
-			if ((strcmp(line, "\n") == 0) && placed_items_section) {
-				break;
-			}
-
-            std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
-            size_t delim_len = delim.size();
-            static std::string placed_item_format = "%i " + delim + " %i " + delim + " %i\n";
-            static const char* placed_item_format_char = placed_item_format.c_str();
-
-            int idx = -1;
-            int x = -1;
-            int y = -1;
-            sscanf(line, placed_item_format_char, &idx, &x, &y);
-
-            int handle = idx_to_handle_map[idx];
-            
-            glm::vec2 grid_pos(x, y);
-            place_world_item(handle, grid_pos);
-        }
-        fclose(file);
-    } else {
-        std::cout << "could not open world items file" << std::endl;
-    }
-}
-
-void load_level_files() {
-    const char* load_settings_file = "./load_settings.gmeconfig";
-    FILE* settings_file = fopen(load_settings_file, "r");
-    if (settings_file) {
-        while (!feof(settings_file)) {
-            level_info_t level_info;
-            fscanf(settings_file, "%s\n", level_info.full_path);
-            if (strcmp(level_info.full_path, "") == 0) {
-                break;
-            }
-            create_level_info(level_info);
-            level_infos.push_back(level_info);
-        }
-        fclose(settings_file);
-    }
-}
-
-void init(application_t& app) {
-	init_sdl(app);
-    load_level_files();
+application_t init_app(int window_width, int window_height) {
+	application_t app{};
 	app.running = true;
-	init_rectangle_data();
-    // used for separate render pass to render the actual world items in the world map
-	init_fbo_draw_data(app);
-	app.world_grid_fbo = create_framebuffer();
+	init_sdl(app, window_width, window_height);
+    // load_level_files();
+	init_quad_data();
+	init_light_data(app);
+	app.light_map_fbo = create_framebuffer();
+	app.main_fbo = create_framebuffer();
+	return app;
+}
+
+static float frame_start_time = 0.f;
+void start_of_frame(application_t& app) {
+	frame_start_time = get_time_since_start_in_sec();
+	process_input(app.mouse_state, app.key_state, app.window);	
+	if (app.key_state.close_event_pressed) {
+		app.running = false;
+	}
+}
+
+void end_of_frame(application_t& app) {
+    SDL_GL_SwapWindow(app.window.sdl_window);
+	float frame_end_time = get_time_since_start_in_sec();
+	engine_time_t::delta_time = frame_end_time - frame_start_time;
 }

@@ -4,15 +4,16 @@
 #include "app.h"
 #include <dirent.h>
 #include <stdio.h>
+#include "level_info.h"
 
 #define NEW_FILE_MODAL_TITLE "New File Modal"
 
 extern std::vector<level_info_t> level_infos;
-extern application_t app;
+extern editor_t* editor_ptr;
 
 static bool new_file_modal_opened = false;
 
-void loader(application_t& app) {
+void create_load_screen_window(editor_t& editor) {
     ImGui::Begin("Loader");
     if (ImGui::Button("New file")) {
         new_file_modal_opened = true;
@@ -28,7 +29,7 @@ void loader(application_t& app) {
                 i--;
                 continue;
             }
-            load_level_in_app(app, level_info);
+            load_level_in_editor(editor, level_info);
             fclose(file);
         }
     }
@@ -67,7 +68,7 @@ void create_new_level_file_modal() {
                 sprintf(new_level_info.full_path, "%s\\%s.gme", new_level_info.output_folder, new_level_info.file_name);
                 write_path_to_load_config(new_level_info.full_path);
                 level_infos.push_back(new_level_info);
-                load_level_in_app(app, new_level_info);
+                load_level_in_editor(*editor_ptr, new_level_info);
                 new_file_modal_opened = false;
                 ImGui::CloseCurrentPopup();
             }
@@ -117,7 +118,6 @@ void delete_path_from_load_config(const char* path) {
     if (settings_file) {
         while (!feof(settings_file)) {
             char line[1024];
-            // fgets(line, 1024, settings_file);
             fscanf(settings_file, "%s\n", line);
             if (strcmp(line, path) != 0) {
                 fprintf(tmp, "%s\n", line);

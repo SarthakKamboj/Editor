@@ -1,0 +1,42 @@
+g++ -m32 -g -o editor ^
+    -I external/imgui-docking ^
+    -I external/SDL2-x86/include/SDL2 ^
+    -I external/glad/include ^
+    -I external/glm ^
+    -I external/stb_image ^
+    -I src ^
+    -L C:\Sarthak\projects\libraries\SDL2\lib\x86 ^
+    -l SDL2 ^
+    -l SDL2main ^
+    -L external/glad ^
+    -l glad ^
+    -L external/stb_image ^
+    -l stb_image ^
+    -l mingw32 ^
+    src/main.cpp ^
+    src/init.cpp ^
+    src/app.cpp ^
+    src/utils/conversion.cpp ^
+    src/utils/io.cpp ^
+    src/utils/time.cpp ^
+    src/transform/transform.cpp ^
+    src/renderer/renderer.cpp ^
+    src/renderer/camera.cpp ^
+    src/renderer/basic/shape_renders.cpp ^
+    src/renderer/opengl/buffers.cpp ^
+    src/renderer/opengl/object_data.cpp ^
+    src/renderer/opengl/resources.cpp ^
+    src/renderer/opengl/vertex.cpp ^
+    src/input/input.cpp ^
+    src/editor_items/add_world_item_modal.cpp ^
+    src/editor_items/gridline.cpp ^
+    src/editor_items/world_item.cpp ^
+    src/editor_items/editor_items.cpp ^
+    src/editor_items/loader.cpp ^
+    external/imgui-docking/imgui_demo.cpp ^
+    external/imgui-docking/imgui_draw.cpp ^
+    external/imgui-docking/imgui_tables.cpp ^
+    external/imgui-docking/imgui_widgets.cpp ^
+    external/imgui-docking/imgui.cpp ^
+    external/imgui-docking/backends/imgui_impl_opengl3.cpp ^
+    external/imgui-docking/backends/imgui_impl_sdl2.cpp

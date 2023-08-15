@@ -5,7 +5,8 @@
 #include <string>
 #include <fstream>
 #include "transform/transform.h"
-#include "renderer/basic/shape_renders.h"
+#include "renderer/graphics/render_resources.h"
+#include "renderer/basic/quad.h"
 #include "constants.h"
 #include "input/input.h"
 #include <stdexcept>
@@ -20,6 +21,98 @@ std::vector<world_item_t> world_items;
 std::vector<placed_world_item_t> placed_items;
 
 int world_item_t::selected_world_item_handle = world_item_t::NONE_SELECTED;
+
+// void init_world_items() {
+//     const char* file_path = "C:\\Sarthak\\projects\\editor\\build\\level10.gme";
+//     FILE* file;
+//     file = fopen(file_path, "r");
+//     std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
+// 	size_t delim_len = delim.size();
+//     static std::string world_item_format = "%1023s" + delim + "%1023s" + delim + "%i" + delim + "%i\n";
+//     static const char* world_item_format_char = world_item_format.c_str();
+//     if (file) {
+//         while (!feof(file)) {
+//             char name[1024]{};
+//             char path[1024]{};
+//             int width = 0;
+//             int height = 0;
+//             fscanf(file, world_item_format_char, name, path, &width, &height);
+//             std::string name_str(name);
+//             create_world_item(path, width, height, name_str);
+//         }
+//         // file.close();
+//         fclose(file);
+//     } else {
+//         std::cout << "could not open world items file" << std::endl;
+//     }
+// }
+
+void init_placed_world_items(const char* file_path) {
+    FILE* file;
+    file = fopen(file_path, "r");
+	size_t delim_len = std::string(WORLD_ITEM_TEXT_FILE_DELIM).size();
+    std::map<int, int> idx_to_handle_map;
+    int i = 0;
+    if (file) {
+        bool placed_items_section = false;
+        char line[1024];
+        while (!feof(file)) {
+            memset(line, 0, 1024);
+            fgets(line, 1024, file);
+            if (strcmp(line, "") == 0) continue;
+            if (strcmp(line, "\n") == 0) continue;
+            if (strcmp(line, "WORLD_ITEMS\n") == 0) continue;
+			// if (!placed_items_section && (strcmp(line, "\n") == 0)) continue;
+            if (!placed_items_section && (strcmp(line, "PLACED_ITEMS\n") != 0)) {
+                std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
+                size_t delim_len = delim.size();
+                static std::string world_item_format = "%1023s" + delim + "%1023s" + delim + "%i" + delim + "%i\n";
+                static const char* world_item_format_char = world_item_format.c_str();
+
+                char name[1024]{};
+                char path[1024]{};
+                int width = 0;
+                int height = 0;
+                sscanf(line, world_item_format_char, name, path, &width, &height);
+
+                int handle = get_world_item_handle(path, width, height);
+                if (handle == -1) {
+                    std::string name_str(name);
+                    idx_to_handle_map[i] = create_world_item(path, width, height, name_str);
+                } else {
+                    idx_to_handle_map[i] = handle;
+                }
+				i++;
+                continue;
+            }
+            if (strcmp(line, "PLACED_ITEMS\n") == 0) {
+                placed_items_section = true;
+                continue;
+            }
+			if ((strcmp(line, "\n") == 0) && placed_items_section) {
+				break;
+			}
+
+            std::string delim(WORLD_ITEM_TEXT_FILE_DELIM);
+            size_t delim_len = delim.size();
+            static std::string placed_item_format = "%i " + delim + " %i " + delim + " %i\n";
+            static const char* placed_item_format_char = placed_item_format.c_str();
+
+            int idx = -1;
+            int x = -1;
+            int y = -1;
+            sscanf(line, placed_item_format_char, &idx, &x, &y);
+
+            int handle = idx_to_handle_map[idx];
+            
+            glm::vec2 grid_pos(x, y);
+            place_world_item(handle, grid_pos);
+        }
+        fclose(file);
+    } else {
+        std::cout << "could not open world items file" << std::endl;
+    }
+}
 
 int create_world_item(const char *path, int squares_width, int squares_height, std::string &name)
 {
@@ -106,8 +199,6 @@ void remove_world_item(int world_handle)
     }
 }
 
-extern mouse_state_t mouse_state;
-
 int place_world_item(int world_item_handle, const glm::vec2 &bottom_left_grid_square_pos)
 {
     if (world_item_handle == world_item_t::NONE_SELECTED)
@@ -146,10 +237,10 @@ int place_world_item(int world_item_handle, const glm::vec2 &bottom_left_grid_sq
     int transform_handle = create_transform(position, glm::vec3(1), 0);
     placed_world_item.transform_handle = transform_handle;
     glm::vec3 color(1);
-    placed_world_item.rec_render_handle = create_rectangle_render(transform_handle, color,
-                                                                  world_item.texture_handle,
-                                                                  world_item.grid_squares_width * GRID_SQUARE_WIDTH,
-                                                                  world_item.grid_squares_height * GRID_SQUARE_WIDTH, false, 1.0f);
+    placed_world_item.rec_render_handle = create_quad(transform_handle, color,
+                                                        world_item.texture_handle,
+                                                        world_item.grid_squares_width * GRID_SQUARE_WIDTH,
+                                                        world_item.grid_squares_height * GRID_SQUARE_WIDTH, false, 1.0f);
     placed_items.push_back(placed_world_item);
     return placed_world_item.handle;
 }
@@ -174,7 +265,7 @@ void remove_placed_world_item(glm::vec2 grid_square_pos)
         if (placed_item.bottom_left_grid_square_pos.x == grid_square_pos.x &&
             placed_item.bottom_left_grid_square_pos.y == grid_square_pos.y)
         {
-            remove_rectangle_render(placed_item.rec_render_handle);
+            remove_quad(placed_item.rec_render_handle);
             placed_items.erase(placed_items.begin() + i, placed_items.begin() + i + 1);
             i--;
         }
@@ -189,7 +280,7 @@ void remove_placed_world_item(int placed_handle)
         const placed_world_item_t &placed_item = placed_items[i];
         if (placed_item.handle == placed_handle)
         {
-            remove_rectangle_render(placed_item.rec_render_handle);
+            remove_quad(placed_item.rec_render_handle);
             idx_to_remove = i;
         }
     }

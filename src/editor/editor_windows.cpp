@@ -1,26 +1,19 @@
-#include "editor_items.h"
+#include "editor_windows.h"
 #include <iostream>
 #include "world_item.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "utils/conversion.h"
 #include "constants.h"
-#include "renderer/basic/shape_renders.h"
+#include "renderer/basic/quad.h"
 #include "add_world_item_modal.h"
 
-extern mouse_state_t mouse_state;
+extern mouse_state_t* mouse_state_ptr;
 static bool show_level_info_file = false;
 
-void imgui_new_frame()
+void create_dockspace(editor_t& editor)
 {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
-    conversion::set_window_top_left_screen_coord();
-}
-
-void create_dockspace(ImGuiIO &io)
-{
+    ImGuiIO &io = *editor.editor_settings.io;
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -46,7 +39,7 @@ void create_dockspace(ImGuiIO &io)
     ImGui::End();
 }
 
-void create_menu_bar(application_t& app)
+void create_menu_bar(editor_t& editor)
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -62,13 +55,14 @@ void create_menu_bar(application_t& app)
             }
             if (ImGui::MenuItem("Save Level"))
             {
-                write_world_map_to_file(app.cur_level);
+                // write_world_map_to_file(app.editor_settings.cur_level);
+                write_world_map_to_file(editor.cur_level);
             }
             if (ImGui::MenuItem("Level file info")) {
                 show_level_info_file = true;
             }
             if (ImGui::MenuItem("Load New Level")) {
-                unload_level_in_app(app);
+                unload_level_in_editor(editor);
             }
             ImGui::EndMenu();
         }
@@ -80,7 +74,7 @@ void create_world_map_window(application_t &app, float x_offset)
 {
     glm::vec3 hover_color(0, 1, 1);
     static int hovered_transform_handle = create_transform(glm::vec3(0.f), glm::vec3(1.f), 0.f);
-    create_rectangle_render(hovered_transform_handle, hover_color, -1, GRID_SQUARE_WIDTH, GRID_SQUARE_WIDTH, false, 0);
+    create_quad(hovered_transform_handle, hover_color, -1, GRID_SQUARE_WIDTH, GRID_SQUARE_WIDTH, false, 0);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGuiWindowFlags world_win_flags = ImGuiWindowFlags_NoCollapse;
@@ -94,7 +88,7 @@ void create_world_map_window(application_t &app, float x_offset)
         float tex_width = WINDOW_WIDTH * ratio;
         float tex_height = WINDOW_HEIGHT * ratio;
 
-        ImGui::Image((void *)app.world_grid_fbo.framebuffer_texture, ImVec2(tex_width, tex_height), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((void *)app.main_fbo.color_texture, ImVec2(tex_width, tex_height), ImVec2(0, 1), ImVec2(1, 0));
 
         if (ImGui::IsWindowFocused())
         {
@@ -114,8 +108,8 @@ void create_world_map_window(application_t &app, float x_offset)
             bottom_left_world_grid_tex_pos.y = top_left_window.y - tex_height - WINDOW_TITLE_BAR_HEIGHT;
 
             ImVec2 mouse_pos_rel_tex;
-            mouse_pos_rel_tex.x = mouse_state.x - bottom_left_world_grid_tex_pos.x;
-            mouse_pos_rel_tex.y = mouse_state.y - bottom_left_world_grid_tex_pos.y;
+            mouse_pos_rel_tex.x = mouse_state_ptr->x - bottom_left_world_grid_tex_pos.x;
+            mouse_pos_rel_tex.y = mouse_state_ptr->y - bottom_left_world_grid_tex_pos.y;
 
             glm::vec2 expanded_pos(mouse_pos_rel_tex.x / ratio, mouse_pos_rel_tex.y / ratio);
 
@@ -128,13 +122,13 @@ void create_world_map_window(application_t &app, float x_offset)
             hovered_transform.position.y = hovered_grid_square.y * GRID_SQUARE_WIDTH + GRID_SQUARE_WIDTH / 2;
 
             // if grid square gets selected
-            if (mouse_state.left_mouse_being_pressed)
+            if (mouse_state_ptr->left_mouse_being_pressed)
             {
                 place_world_item(world_item_t::selected_world_item_handle, hovered_grid_square);
             }
 
             // remove on right mouse press
-            if (mouse_state.right_mouse_being_pressed)
+            if (mouse_state_ptr->right_mouse_being_pressed)
             {
                 remove_placed_world_item(hovered_grid_square);
             }
@@ -144,29 +138,29 @@ void create_world_map_window(application_t &app, float x_offset)
     ImGui::PopStyleVar();
 }
 
-void imgui_end_of_frame(ImGuiIO &io)
-{
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        SDL_Window *backup_current_window = SDL_GL_GetCurrentWindow();
-        SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-    }
-}
+// void imgui_end_of_frame(ImGuiIO &io)
+// {
+//     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+//     {
+//         SDL_Window *backup_current_window = SDL_GL_GetCurrentWindow();
+//         SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+//         ImGui::UpdatePlatformWindows();
+//         ImGui::RenderPlatformWindowsDefault();
+//         SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+//     }
+// }
 
-void create_level_info_window(application_t &app) {
+void create_level_info_window(editor_t &editor) {
     ImGui::Begin("Level Info");
-    ImGui::Text(app.cur_level.output_folder);
-    ImGui::Text(app.cur_level.file_name);
+    ImGui::Text(editor.cur_level.output_folder);
+    ImGui::Text(editor.cur_level.file_name);
     ImGui::End();
 }
 
-void create_editor_windows(ImGuiIO &io, application_t &app, float x_offset)
+void create_editor_windows(editor_t& editor, application_t &app, float x_offset)
 {
     // ImGui::ShowDemoWindow();
-    create_menu_bar(app);
+    create_menu_bar(editor);
     // render the framebuffer texture from the render pass used to display the actual world grid
     create_world_map_window(app, x_offset);
 
@@ -175,7 +169,7 @@ void create_editor_windows(ImGuiIO &io, application_t &app, float x_offset)
     create_placed_world_items_editor();
 
     if (show_level_info_file) {
-        create_level_info_window(app);
+        create_level_info_window(editor);
     }
 }
 

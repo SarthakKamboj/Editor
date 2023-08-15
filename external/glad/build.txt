@@ -1,0 +1,3 @@
+g++ -shared -g -Wall -o glad.lib ^
+    -I include ^
+    src/glad.c 

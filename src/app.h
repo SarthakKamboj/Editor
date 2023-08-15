@@ -1,40 +1,22 @@
 #pragma once
 
-#include "SDL.h"
-#include <map>
+#include "window.h"
 #include "input/input.h"
-#include "imgui.h"
 #include "renderer/camera.h"
-#include "renderer/opengl/object_data.h"
 #include "constants.h"
-
-struct level_info_t {
-    char output_folder[1024]{};
-    char file_name[256]{};
-    char full_path[1024+256]{};
-};
-
-void create_level_info(level_info_t& level_info, char* full_path);
-void create_level_info(level_info_t& level_info);
-
-enum application_state {
-    LOADER = 0,
-    EDITOR
-};
+#include "renderer/graphics/buffers.h"
 
 struct application_t {
 	bool running = true;
-	SDL_Window* window = NULL;
-	framebuffer_t world_grid_fbo;
-	opengl_object_data fbo_draw_data;
-	int debug_rec_handle = -1;
-	ImGuiIO* io;
-    application_state state = application_state::LOADER;
-    level_info_t cur_level{};
+    window_t window;
+	framebuffer_t light_map_fbo;
+	framebuffer_t main_fbo;
+    mouse_state_t mouse_state;
+    key_state_t key_state;
 };
 
-void init(application_t& app);
-void init_placed_world_items(const char* path);
-void load_level_in_app(application_t& app, level_info_t& level_info);
-void unload_level_in_app(application_t& app);
-void update(camera_t& camera, key_state_t& key_state, float& x_offset);
+application_t init_app(int window_width, int window_height);
+void start_of_frame(application_t& app);
+void end_of_frame(application_t& app);
+
+void update_app(camera_t& camera, key_state_t& key_state, float& x_offset);

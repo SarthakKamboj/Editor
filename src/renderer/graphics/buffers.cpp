@@ -100,8 +100,8 @@ framebuffer_t create_framebuffer() {
 	glGenFramebuffers(1, &framebuffer.id);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);
 
-	glGenTextures(1, &framebuffer.framebuffer_texture);
-	glBindTexture(GL_TEXTURE_2D, framebuffer.framebuffer_texture);
+	glGenTextures(1, &framebuffer.color_texture);
+	glBindTexture(GL_TEXTURE_2D, framebuffer.color_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	// learn what these texture parameters do since it effects how the colorbuffer looks in the end
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -112,7 +112,7 @@ framebuffer_t create_framebuffer() {
 	float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.framebuffer_texture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.color_texture, 0);
 
 	glGenRenderbuffers(1, &framebuffer.renderbuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, framebuffer.renderbuffer);

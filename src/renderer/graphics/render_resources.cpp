@@ -1,4 +1,4 @@
-#include "resources.h"
+#include "render_resources.h"
 #include "stb/stb_image.h"
 #include <iostream>
 #include "utils/io.h"
@@ -86,7 +86,7 @@ shader_t create_shader(const char* vert_path, const char* frag_path) {
 	int success;
 	char info_log[512];
 
-	std::string vert_code_str = io::get_file_contents(vert_path);
+	std::string vert_code_str = get_file_contents(vert_path);
 	const char* vert_shader_source = vert_code_str.c_str();
 	glShaderSource(vert_shader, 1, &vert_shader_source, NULL);
 	glCompileShader(vert_shader);
@@ -98,7 +98,7 @@ shader_t create_shader(const char* vert_path, const char* frag_path) {
 		throw std::runtime_error("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" + std::string(info_log));
 	}
 
-	std::string frag_code_str = io::get_file_contents(frag_path);
+	std::string frag_code_str = get_file_contents(frag_path);
 	const char* frag_shader_source = frag_code_str.c_str();
 	glShaderSource(frag_shader, 1, &frag_shader_source, NULL);
 	glCompileShader(frag_shader);
@@ -119,7 +119,6 @@ shader_t create_shader(const char* vert_path, const char* frag_path) {
 		glGetProgramInfoLog(shader.id, 512, NULL, info_log);
 		throw std::runtime_error("ERROR::SHADER::PROGRAM::LINKING_FAILED\n" + std::string(info_log));
 	}
-
 	return shader;
 }
 
@@ -133,31 +132,46 @@ void unbind_shader() {
 
 void shader_set_mat4(shader_t& shader, const char* var_name, const glm::mat4& mat) {
 	glUseProgram(shader.id);
-	unsigned int loc = glGetUniformLocation(shader.id, var_name);
+	GLint loc = glGetUniformLocation(shader.id, var_name);
+    if (loc == -1) {
+        std::cout << var_name << " does not exist in shader " << shader.id << std::endl;
+    }
 	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
-}
-
-void shader_set_float(shader_t& shader, const char* var_name, const float val) {
-	glUseProgram(shader.id);
-	unsigned int loc = glGetUniformLocation(shader.id, var_name);
-	glUniform1f(loc, val);
 }
 
 void shader_set_int(shader_t& shader, const char* var_name, const int val) {
 	glUseProgram(shader.id);
-	unsigned int loc = glGetUniformLocation(shader.id, var_name);
+	GLint loc = glGetUniformLocation(shader.id, var_name);
+    if (loc == -1) {
+        std::cout << var_name << " does not exist in shader " << shader.id << std::endl;
+    }
 	glUniform1i(loc, val);
 }
 
 void shader_set_vec3(shader_t& shader, const char* var_name, const glm::vec3& v) {
 	glUseProgram(shader.id);
-	unsigned int loc = glGetUniformLocation(shader.id, var_name);
+	GLint loc = glGetUniformLocation(shader.id, var_name);
+    if (loc == -1) {
+        std::cout << var_name << " does not exist in shader " << shader.id << std::endl;
+    }
 	glUniform3fv(loc, 1, glm::value_ptr(v));
+}
+
+void shader_set_float(shader_t& shader, const char* var_name, const float val) {
+	glUseProgram(shader.id);
+	GLint loc = glGetUniformLocation(shader.id, var_name);
+    if (loc == -1) {
+        std::cout << var_name << " does not exist in shader " << shader.id << std::endl;
+    }
+	glUniform1f(loc, val);
 }
 
 glm::vec3 shader_get_vec3(const shader_t& shader, const char* var_name) {
 	glm::vec3 v;
-	unsigned int loc = glGetUniformLocation(shader.id, var_name);
+	GLint loc = glGetUniformLocation(shader.id, var_name);
+    if (loc == -1) {
+        std::cout << var_name << " does not exist in shader " << shader.id << std::endl;
+    }
 	glGetUniformfv(shader.id, loc, &v[0]);
 	return v;
 }

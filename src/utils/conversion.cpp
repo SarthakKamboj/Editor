@@ -4,7 +4,7 @@
 #include "SDL.h"
 #include "app.h"
 
-extern application_t app;
+extern application_t application;
 
 namespace conversion {
 	glm::vec2 ndc_coord_to_window_coord(const glm::vec2& ndc_coord) {
@@ -48,7 +48,7 @@ namespace conversion {
 		// entire_window_top_left_screen_pos = ImGui::GetWindowPos();
 
         int x, y;
-        SDL_GetWindowPosition(app.window, &x, &y);
+        SDL_GetWindowPosition(application.window.sdl_window, &x, &y);
         entire_window_top_left_screen_pos.x = x;
         entire_window_top_left_screen_pos.y = y;
 	}

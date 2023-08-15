@@ -11,5 +11,3 @@ struct camera_t {
 camera_t create_camera();
 glm::mat4 get_view_matrix(camera_t& camera);
 void update_camera(camera_t& camera, key_state_t& key_state);
-
-

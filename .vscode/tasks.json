@@ -1,0 +1,8 @@
+{
+    "version": "2.0.0",
+    "tasks": [{
+        "label": "Build_Editor",
+        "command": "${workspaceFolder}/build.bat",
+        "type": "shell"
+    }]
+}

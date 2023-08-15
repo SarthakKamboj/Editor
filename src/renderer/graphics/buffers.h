@@ -36,7 +36,7 @@ void delete_vao(const vao_t& vao);
 
 struct framebuffer_t {
 	GLuint id;
-	GLuint framebuffer_texture;
+	GLuint color_texture;
 	GLuint renderbuffer;
 };
 

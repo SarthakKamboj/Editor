@@ -1,0 +1,1 @@
+g++ -shared -g -Wall -o stb_image.lib stb_image.cpp

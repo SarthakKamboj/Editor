@@ -9,7 +9,7 @@ enum dir_t {
 struct gridline_t {
 	glm::vec3 color = glm::vec3(0,0,0);
 	int transform_handle = -1;
-	int rec_render_handle = -1;
+	int quad_handle = -1;
 	dir_t dir;
 };
 

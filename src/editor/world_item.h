@@ -1,8 +1,8 @@
 #pragma once
 
-#include "renderer/opengl/resources.h"
 #include "transform/transform.h"
 #include "app.h"
+#include "level_info.h"
 
 struct world_item_t {
     int handle = -1;
@@ -23,13 +23,15 @@ struct placed_world_item_t {
     int rec_render_handle = -1;
 };
 
+// world item functions
 int create_world_item(const char* path, int squares_width, int squares_height, std::string& name);
 world_item_t* get_world_item(int world_handle);
 int get_world_item_handle(const char* path, int squares_width, int squares_height);
 void remove_world_item(int world_handle);
 void clear_world_items();
 
-// pass in the world item handle and the bottom left grid square
+// placed world item functions
+void init_placed_world_items(const char* path);
 int place_world_item(int world_item_handle, const glm::vec2& bottom_left_grid_square_pos);
 placed_world_item_t* get_placed_world_item(int placed_handle);
 void remove_placed_world_item(glm::vec2 grid_square_pos);

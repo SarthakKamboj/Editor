@@ -2,7 +2,7 @@
 #include "constants.h"
 #include "backends/imgui_impl_sdl2.h"
 
-void process_input(mouse_state_t& mouse_state, key_state_t& key_state, SDL_Window* window) {
+void process_input(mouse_state_t& mouse_state, key_state_t& key_state, window_t& window) {
 	SDL_Event event;
 	mouse_state.left_mouse_down = false;
 	mouse_state.left_mouse_up = false;
@@ -15,7 +15,7 @@ void process_input(mouse_state_t& mouse_state, key_state_t& key_state, SDL_Windo
 
 	while (SDL_PollEvent(&event)) {
 		ImGui_ImplSDL2_ProcessEvent(&event);
-		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window)) {
+		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window.sdl_window)) {
 			key_state.close_event_pressed = true;
 			continue;
 		}

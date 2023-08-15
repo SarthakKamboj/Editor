@@ -1,10 +1,10 @@
-#include "input/input.h"
 #include "SDL.h"
+#include "input/input.h"
 #include "glad/glad.h"
 #include "app.h"
 #include <iostream>
 #include "constants.h"
-#include "renderer/opengl/object_data.h"
+#include "renderer/graphics/mesh.h"
 #include "renderer/renderer.h"
 #include "utils/time.h"
 #include <cmath>
@@ -13,34 +13,34 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "renderer/camera.h"
 #include "utils/conversion.h"
-#include <editor_items/add_world_item_modal.h>
-#include <editor_items/world_item.h>
-#include "editor_items/gridline.h"
-#include "editor_items/editor_items.h"
-#include "editor_items/loader.h"
-
+#include <editor/add_world_item_modal.h>
+#include <editor/world_item.h>
+#include "editor/gridline.h"
+#include "editor/editor_windows.h"
+#include "editor/loader.h"
+#include "editor/editor.h"
+#include "renderer/basic/light.h"
 
 /*
 Screen coordinates will always being (0,0) in the bottom left and (SCREEN_WIDTH, SCREEN_HEIGHT) in top right
 */
 
-// TODO: seems like things stop rendering after 14 world items get placed
+application_t application;
+mouse_state_t* mouse_state_ptr;
+editor_t* editor_ptr;
 
-int debug_bottom_left_world_grid_tex = -1;
-
-mouse_state_t mouse_state;
-key_state_t key_state;
-camera_t camera;
-application_t app;
-
-std::ostream& operator<< (std::ostream& stream, const ImVec2& vec) {
-	stream << "x: " << vec.x << " y: " << vec.y;
-	return stream;
-}
+// std::ostream& operator<< (std::ostream& stream, const ImVec2& vec) {
+// 	stream << "x: " << vec.x << " y: " << vec.y;
+// 	return stream;
+// }
 
 int main(int argc, char** argv) {
 
-	init(app);
+	application = init_app(WINDOW_WIDTH, WINDOW_HEIGHT);
+	mouse_state_ptr = &application.mouse_state;
+
+	editor_t editor = init_editor(application);	
+	editor_ptr = &editor;
 
     // information for the world grid
 	const int NUM_COLS = ceil(2*WINDOW_WIDTH / GRID_SQUARE_WIDTH);
@@ -53,39 +53,43 @@ int main(int argc, char** argv) {
 		create_gridline(WINDOW_WIDTH, row * GRID_SQUARE_WIDTH, dir_t::ROW);
 	}
 	
-	camera = create_camera();
+	camera_t camera = create_camera();
 
     // scroll offset for the world grid editor 
 	float x_offset = 0.f;
 
-	while (app.running) {
+	create_light(glm::vec3(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 0), glm::vec3(1), 50.f);
 
-        imgui_new_frame();
-		ImGuiIO& io = ImGui::GetIO();
+	while (application.running) {
+		std::cout << "frame start" << std::endl;
+        // imgui_new_frame();
+		// ImGuiIO& io = ImGui::GetIO();
+		start_of_frame(application);
+		editor_new_frame();
 
-		float start = platformer::get_time_since_start_in_sec();
-		process_input(mouse_state, key_state, app.window);	
-		if (key_state.close_event_pressed) {
-			app.running = false;
-		}
+		// float start = platformer::get_time_since_start_in_sec();
+		// process_input(mouse_state, key_state, application.window);	
+		// if (key_state.close_event_pressed) {
+		// 	application.running = false;
+		// }
 
         // for making the entire editor window dockable
-        create_dockspace(io);
-        if (app.state == application_state::EDITOR) {
-            create_editor_windows(io, app, x_offset) ;
+    	create_dockspace(editor);
+        if (editor.editor_settings.state == editor_state::EDITOR_SCREEN) {
+            create_editor_windows(editor, application, x_offset) ;
         } else {
-            loader(app);
+            create_load_screen_window(editor);
         }
 
-		update(camera, key_state, x_offset);
-		render(app, camera);
+		update_app(camera, application.key_state, x_offset);
+		render(application, camera, editor);
 
-        imgui_end_of_frame(io);
+        editor_end_of_frame(editor);
+		end_of_frame(application);
+        // SDL_GL_SwapWindow(app.window);
 
-        SDL_GL_SwapWindow(app.window);
-
-		float end = platformer::get_time_since_start_in_sec();
-		platformer::time_t::delta_time = end - start;
+		// float end = platformer::get_time_since_start_in_sec();
+		// platformer::time_t::delta_time = end - start;
 	}
 
 	return -1;
