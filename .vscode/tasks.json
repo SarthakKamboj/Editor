@@ -4,5 +4,9 @@
         "label": "Build_Editor",
         "command": "${workspaceFolder}/build.bat",
         "type": "shell"
+    }, {
+        "label": "Build_Editor_Release",
+        "command": "${workspaceFolder}/build_release.bat",
+        "type": "shell"
     }]
 }

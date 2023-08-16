@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22.1)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
+# set(CMAKE_BUILD_TYPE "Release")
 
 project(editor)
 
@@ -79,12 +80,15 @@ add_executable(${PROJECT_NAME}
 add_subdirectory(external/glm)
 add_subdirectory(external/glad)
 add_subdirectory(external/stb_image)
+# add_subdirectory(external/SDL2-2.28.2)
+
 # add_subdirectory(external/imgui-docking)
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC external/glm
     PUBLIC external/glad/include
     PUBLIC external/SDL2-x86/include/SDL2
+    # PUBLIC external/SDL2-2.28.2/include
     PUBLIC external/stb_image
     PUBLIC external/imgui-docking
     PUBLIC src
@@ -97,8 +101,14 @@ target_link_directories(${PROJECT_NAME}
     PUBLIC external/stb_image
 )
 
-target_link_libraries(${PROJECT_NAME} glm)
-target_link_libraries(${PROJECT_NAME} glad)
-target_link_libraries(${PROJECT_NAME} stb_image)
-target_link_libraries(${PROJECT_NAME} mingw32 SDL2main SDL2)
+target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE stb_image)
+target_link_libraries(${PROJECT_NAME} PRIVATE mingw32 SDL2main SDL2)
+# target_link_libraries(${PROJECT_NAME} PRIVATE mingw32)
+# if(TARGET SDL2::SDL2main)
+    # It has an implicit dependency on SDL2 functions, so it MUST be added before SDL2::SDL2 (or SDL2::SDL2-static)
+    # target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2main)
+# endif()
+# target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2)
 # target_link_libraries(${PROJECT_NAME} stdc++fs)

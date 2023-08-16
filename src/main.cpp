@@ -82,6 +82,8 @@ int main(int argc, char** argv) {
 
         editor_end_of_frame(editor);
 		end_of_frame(application);
+
+		std::cout << "fps: " << (1/engine_time_t::delta_time) << std::endl;
 	}
 
 	return -1;

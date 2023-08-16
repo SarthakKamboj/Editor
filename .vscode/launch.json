@@ -22,6 +22,25 @@
             },
             // "visualizerFile": "${workspaceFolder}/my.natvis",
             // "showDisplayString": true
+        },
+        {
+            "name": "Release Editor",
+            "type": "cppdbg",
+            "preLaunchTask": "Build_Editor_Release",
+            "request": "launch",
+            "program": "${workspaceFolder}/build_release/editor.exe",
+            "args": [],
+            "windows": {
+                "MIMode": "gdb"
+            },
+            "cwd": "${workspaceFolder}",
+            "externalConsole": false,
+            "logging": {
+                "moduleLoad": false,
+                "trace": true
+            },
+            // "visualizerFile": "${workspaceFolder}/my.natvis",
+            // "showDisplayString": true
         }
     ]
 }

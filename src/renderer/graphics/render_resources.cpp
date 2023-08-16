@@ -175,3 +175,35 @@ glm::vec3 shader_get_vec3(const shader_t& shader, const char* var_name) {
 	glGetUniformfv(shader.id, loc, &v[0]);
 	return v;
 }
+
+void shader_set_uniform(shader_t& shader, shader_uniform_t& uniform, const shader_uniform_value_t& value) {
+	bind_shader(shader);
+	switch (uniform.type) {
+		case shader_uniform_type::MAT4: {
+			glUniformMatrix4fv(uniform.location, 1, GL_FALSE, glm::value_ptr(*value.mat4));
+			break;
+		}
+		case shader_uniform_type::VEC3: {
+			glUniform3fv(uniform.location, 1, glm::value_ptr(*value.vec3));
+			break;
+		}
+		case shader_uniform_type::INT: {
+			glUniform1i(uniform.location, value.int_val);
+			break;
+		}
+		case shader_uniform_type::FLOAT: {
+			glUniform1f(uniform.location, value.float_val);
+			break;
+		}
+	}
+}
+
+shader_uniform_t create_shader_uniform(shader_t& shader, const char* name, shader_uniform_type type) {
+	shader_uniform_t info;
+	info.type = type;
+	memcpy(info.uniform_name, name, strlen(name));
+	bind_shader(shader);
+	info.location = glGetUniformLocation(shader.id, info.uniform_name);
+	assert(info.location != -1);
+	return info;
+}

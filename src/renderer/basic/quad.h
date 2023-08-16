@@ -23,6 +23,8 @@ struct quad_t {
 
 	static mesh_t quad_mesh;
 	static shader_t quad_shader;
+	static shader_uniform_t quad_color_uniform;
+	static shader_uniform_t quad_model_uniform;
 };
 
 void init_quad_data();

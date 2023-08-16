@@ -9,6 +9,8 @@
 
 mesh_t quad_t::quad_mesh{};
 shader_t quad_t::quad_shader{};
+shader_uniform_t quad_t::quad_color_uniform{};
+shader_uniform_t quad_t::quad_model_uniform{};
 
 std::vector<quad_t> quads;
 
@@ -46,6 +48,9 @@ void init_quad_data() {
 	shader_set_mat4(quad_shader, "projection", projection);
     shader_set_int(quad_shader, "tex", 0);
     shader_set_int(quad_t::quad_shader, "light_map", 1);
+
+    quad_t::quad_color_uniform = create_shader_uniform(quad_shader, "color", shader_uniform_type::VEC3);
+    quad_t::quad_model_uniform = create_shader_uniform(quad_shader, "model", shader_uniform_type::MAT4);
 }
 
 int create_quad(int transform_handle, glm::vec3& color, int tex_handle, float width, float height, bool wireframe, float tex_influence) {
@@ -110,10 +115,17 @@ void set_quad_in_shader(quad_t& quad) {
         quad.model_matrix = get_model_matrix(frame_transform);
     }
 
-	shader_set_mat4(quad_t::quad_shader, "model", quad.model_matrix);
-	shader_set_vec3(quad_t::quad_shader, "color", quad.color);
+    shader_uniform_value_t value;
+    value.mat4 = &quad.model_matrix;
+    shader_set_uniform(quad_t::quad_shader, quad_t::quad_model_uniform, value);
+	// shader_set_mat4(quad_t::quad_shader, "model", quad.model_matrix);
+	// shader_set_vec3(quad_t::quad_shader, "color", quad.color);
+    value.vec3 = &quad.color;
+    shader_set_uniform(quad_t::quad_shader, quad_t::quad_color_uniform, value);
     if (quad.texture_handle != -1) {
 	    shader_set_float(quad_t::quad_shader, "tex_influence", quad.tex_influence);
+        // value.float_val = quad.tex_influence;
+        // shader_set_uniform(quad_t::quad_shader, quad_t::quad_tex_influence_uniform, value);
         glActiveTexture(GL_TEXTURE0);
         bind_texture_by_handle(quad.texture_handle);
     }
