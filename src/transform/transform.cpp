@@ -1,7 +1,18 @@
 #include "transform.h"
 #include <vector>
+#include <algorithm>
 
 std::vector<transform_t> transforms;
+
+bool transform_idx_less(const transform_t& transform1, const transform_t& transform2) {
+    return transform1.handle < transform2.handle;
+}
+
+struct {
+    bool operator()(const transform_t& t1, const transform_t& t2) const {
+        return transform_idx_less(t1, t2);
+    }
+} transform_handle_less;
 
 int create_transform(glm::vec3 position, glm::vec3 scale, float rot_deg) {
     static int running_count = 0;
@@ -11,6 +22,8 @@ int create_transform(glm::vec3 position, glm::vec3 scale, float rot_deg) {
 	transform.rotation_deg = rot_deg;
     transform.handle = running_count;
 	transforms.push_back(transform);
+    // std::sort(transforms.data(), transforms.data() + transforms.size(), transform_idx_less);
+    std::sort(transforms.begin(), transforms.end(), transform_idx_less);
     running_count++;
 	return transform.handle;
 }
@@ -24,13 +37,36 @@ glm::mat4 get_model_matrix(const transform_t& transform) {
 	return model;
 }
 
-transform_t* get_transform(int transform_handle) {
-    for (transform_t& transform : transforms) {
-        if (transform.handle == transform_handle) {
-            return &transform;
-        }
+
+transform_t* binary_search_transform(int start_idx, int end_idx, int transform_handle) {
+    if (start_idx > end_idx) {
+        return NULL;
     }
-	return NULL;
+
+    int mid = (start_idx + end_idx) / 2;
+    if (transforms[mid].handle == transform_handle) {
+        return &transforms[mid];
+    }
+    if (transforms[mid].handle < transform_handle) {
+        return binary_search_transform(mid+1, end_idx, transform_handle);
+    }
+    return binary_search_transform(start_idx, mid-1, transform_handle);
+}
+
+transform_t* get_transform(int transform_handle) {
+    assert(transform_handle >= 0);
+    // bool exists = std::binary_search(transforms.begin(), transforms.end(), transform_handle, transform_idx_less);
+
+    // bool exists = false;
+    // for (transform_t& transform : transforms) {
+    //     if (transform.handle == transform_handle) {
+    //         // return &transform;
+    //         exists = true;
+    //     }
+    // }
+
+    return binary_search_transform(0, transforms.size()-1, transform_handle);
+	// return NULL;
 }
 
 void remove_transform(int transform_handle) {

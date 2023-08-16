@@ -92,19 +92,34 @@ void remove_quad(int quad_handle) {
     }
 }
 
-void set_quad_in_shader(const quad_t& quad) {
+void set_quad_in_shader(quad_t& quad) {
     transform_t* cur_transform_ptr = get_transform(quad.transform_handle);
     assert(cur_transform_ptr != NULL);
 	transform_t cur_transform = *cur_transform_ptr;
-    int handle = create_transform(cur_transform.position + quad.internal_transform.position, quad.internal_transform.scale * cur_transform.scale, quad.internal_transform.rotation_deg + cur_transform.rotation_deg);
-    transform_t* frame_trans_ptr = get_transform(handle);
-    assert(frame_trans_ptr != NULL);
-    transform_t& frame_transform = *frame_trans_ptr;
-	glm::mat4 model_matrix = get_model_matrix(frame_transform);
-	shader_set_mat4(quad_t::quad_shader, "model", model_matrix);
+    // int handle = create_transform(cur_transform.position + quad.internal_transform.position, quad.internal_transform.scale * cur_transform.scale, quad.internal_transform.rotation_deg + cur_transform.rotation_deg);
+    // transform_t* frame_trans_ptr = get_transform(handle);
+    // assert(frame_trans_ptr != NULL);
+    // transform_t& frame_transform = *frame_trans_ptr;
+    transform_t frame_transform{};
+    frame_transform.position = cur_transform.position + quad.internal_transform.position;
+    frame_transform.scale = quad.internal_transform.scale * cur_transform.scale, 
+    frame_transform.rotation_deg = quad.internal_transform.rotation_deg + cur_transform.rotation_deg;
+
+    if (frame_transform.position != quad.last_relevant_transform.position ||
+        frame_transform.scale != quad.last_relevant_transform.scale ||
+        frame_transform.rotation_deg != quad.last_relevant_transform.rotation_deg) {
+        quad.last_relevant_transform.position = frame_transform.position;
+        quad.last_relevant_transform.scale = frame_transform.scale;
+        quad.last_relevant_transform.rotation_deg = frame_transform.rotation_deg;
+        quad.model_matrix = get_model_matrix(frame_transform);
+    }
+
+	// glm::mat4 model_matrix = get_model_matrix(frame_transform);
+	// shader_set_mat4(quad_t::quad_shader, "model", model_matrix);
+	shader_set_mat4(quad_t::quad_shader, "model", quad.model_matrix);
 	shader_set_vec3(quad_t::quad_shader, "color", quad.color);
-	shader_set_float(quad_t::quad_shader, "tex_influence", quad.tex_influence);
     if (quad.texture_handle != -1) {
+	    shader_set_float(quad_t::quad_shader, "tex_influence", quad.tex_influence);
         glActiveTexture(GL_TEXTURE0);
         bind_texture_by_handle(quad.texture_handle);
     }
@@ -114,10 +129,10 @@ void set_quad_in_shader(const quad_t& quad) {
 	else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-    remove_transform(handle);
+    // remove_transform(handle);
 }
 
-void render_quad(const quad_t& quad) {
+void render_quad(quad_t& quad) {
     set_quad_in_shader(quad);
     bind_shader(quad_t::quad_shader);
 	render_mesh(quad_t::quad_mesh);
@@ -137,7 +152,7 @@ void render_quads(camera_t& camera, application_t& app) {
 	shader_set_mat4(quad_t::quad_shader, "view", view_matrix);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, app.light_map_fbo.color_texture);
-	for (const quad_t& quad : quads) {
+	for (quad_t& quad : quads) {
 		render_quad(quad);
 	}
 }

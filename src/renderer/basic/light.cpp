@@ -134,8 +134,6 @@ void render_light(const light_t& light) {
 void render_lights(camera_t& camera, float ambient, float alpha) {
     glm::mat4 view_matrix = get_view_matrix(camera);
 	shader_set_mat4(light_t::light_shader, "view", view_matrix);
-	shader_set_float(light_t::light_shader, "ambient", ambient);
-	shader_set_float(light_t::light_shader, "alpha", alpha);
 	for (const light_t& light : lights) {
 		render_light(light);
 	}
