@@ -11,7 +11,7 @@ enum editor_state {
 
 struct editor_settings_t {
 	ImGuiIO* io;
-    editor_state state = editor_state::EDITOR_SCREEN;
+    editor_state state = editor_state::LOAD_SCREEN;
 };
 
 struct editor_t {
