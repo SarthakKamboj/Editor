@@ -25,6 +25,7 @@ struct quad_t {
 	static shader_t quad_shader;
 	static shader_uniform_t quad_color_uniform;
 	static shader_uniform_t quad_model_uniform;
+	static shader_uniform_t quad_tex_influence_uniform;
 };
 
 void init_quad_data();
