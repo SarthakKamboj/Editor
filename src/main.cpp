@@ -58,20 +58,16 @@ int main(int argc, char** argv) {
     // scroll offset for the world grid editor 
 	float x_offset = 0.f;
 
-	create_light(glm::vec3(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 0), glm::vec3(1), 200.f);
-	create_light(glm::vec3((WINDOW_WIDTH/2) - 100, WINDOW_HEIGHT/2, 0), glm::vec3(0,1,0), 100.f);
+	// create_light(glm::vec3(100 - (WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0.25f), glm::vec3(1,0,0), 200.f);
+	// create_light(glm::vec3((WINDOW_WIDTH/2) - 250, WINDOW_HEIGHT/2, 0.5f), glm::vec3(1,0,0), 300.f);
+	create_light(glm::vec3((WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0.5f), glm::vec3(0.5f), 1700.f);
+	// create_light(glm::vec3(0.f, WINDOW_HEIGHT/2, 0), glm::vec3(0,1,0), 1000.f);
+	create_light(glm::vec3(100 + (WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0), glm::vec3(1,1,0), 500.f);
 
 	while (application.running) {
-        // imgui_new_frame();
-		// ImGuiIO& io = ImGui::GetIO();
+        
 		start_of_frame(application);
 		editor_new_frame();
-
-		// float start = platformer::get_time_since_start_in_sec();
-		// process_input(mouse_state, key_state, application.window);	
-		// if (key_state.close_event_pressed) {
-		// 	application.running = false;
-		// }
 
         // for making the entire editor window dockable
     	create_dockspace(editor);
@@ -86,10 +82,6 @@ int main(int argc, char** argv) {
 
         editor_end_of_frame(editor);
 		end_of_frame(application);
-        // SDL_GL_SwapWindow(app.window);
-
-		// float end = platformer::get_time_since_start_in_sec();
-		// platformer::time_t::delta_time = end - start;
 	}
 
 	return -1;

@@ -4,9 +4,11 @@
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
 #include "renderer/graphics/vertex.h"
+#include <algorithm>
 
 mesh_t light_t::light_mesh{};
 shader_t light_t::light_shader{};
+shader_t light_t::light_stencil_shader{};
 
 static std::vector<light_t> lights;
 
@@ -50,10 +52,28 @@ void init_light_data(application_t& app) {
 
 	shader_t& light_shader = light_t::light_shader;
 	light_shader = create_shader((SHADERS_PATH + "\\light.vert").c_str(), (SHADERS_PATH + "\\light.frag").c_str());
-	shader_set_mat4(light_shader, "model", glm::mat4(1));
+	// shader_set_mat4(light_shader, "model", glm::mat4(1));
 	glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
 	shader_set_mat4(light_shader, "projection", projection);	
+
+	light_t::light_stencil_shader = create_shader((SHADERS_PATH + "\\light_stencil.vert").c_str(), (SHADERS_PATH + "\\light_stencil.frag").c_str());
+	shader_set_mat4(light_t::light_stencil_shader, "projection", projection);	
+
 }
+
+struct {
+    bool operator()(light_t& light1, light_t& light2) const {
+        transform_t* light1_trans_ptr = get_transform(light1.transform_handle);
+        assert(light1_trans_ptr);
+        transform_t* light2_trans_ptr = get_transform(light2.transform_handle);
+        assert(light2_trans_ptr);
+
+        transform_t& light1_trans = *light1_trans_ptr;
+        transform_t& light2_trans = *light2_trans_ptr;
+
+        return light1_trans.position.z < light2_trans.position.z;
+    }
+} light_z_less;
 
 int create_light(glm::vec3 pos, glm::vec3 color, float radius) {
     static int running_cnt = 0;
@@ -62,8 +82,9 @@ int create_light(glm::vec3 pos, glm::vec3 color, float radius) {
     light.color = color;
     light.world_pos = pos;
     light.radius = radius;
-    light.transform_handle = create_transform(glm::vec3(light.world_pos.x, light.world_pos.y, 0.f), glm::vec3(light.radius), 0.f);
+    light.transform_handle = create_transform(pos, glm::vec3(light.radius), 0.f);
     lights.push_back(light);
+	std::sort(lights.begin(), lights.end(), light_z_less);
     running_cnt++;
 }
 
@@ -76,6 +97,32 @@ void set_light_in_shader(const light_t& light) {
 	shader_t& light_shader = light_t::light_shader;
 	shader_set_mat4(light_shader, "model", model_matrix);
 	shader_set_vec3(light_shader, "color", light.color);
+
+	shader_set_mat4(light_t::light_stencil_shader, "model", model_matrix);
+}
+
+void set_light_in_stencil_shader(const light_t& light) {
+    transform_t* transform_ptr = get_transform(light.transform_handle);
+    assert(transform_ptr != NULL);
+    transform_t& transform = *transform_ptr;
+    glm::mat4 model_matrix = get_model_matrix(transform);
+	shader_set_mat4(light_t::light_stencil_shader, "model", model_matrix);
+}
+
+void render_light_stencil(const light_t& light) {
+    set_light_in_stencil_shader(light);
+    bind_shader(light_t::light_stencil_shader);
+	render_mesh(light_t::light_mesh);
+}
+
+void render_light_stencils(camera_t& camera) {
+    glm::mat4 view_matrix = get_view_matrix(camera);
+	shader_set_mat4(light_t::light_stencil_shader, "view", view_matrix);
+	// glStencilFunc(GL_EQUAL, 0, 0xff);
+	// glStencilFunc(GL_NEVER, 0, 0xff);
+	for (const light_t& light : lights) {
+		render_light_stencil(light);
+	}
 }
 
 void render_light(const light_t& light) {
@@ -84,10 +131,11 @@ void render_light(const light_t& light) {
 	render_mesh(light_t::light_mesh);
 }
 
-void render_lights(camera_t& camera, float ambient) {
+void render_lights(camera_t& camera, float ambient, float alpha) {
     glm::mat4 view_matrix = get_view_matrix(camera);
 	shader_set_mat4(light_t::light_shader, "view", view_matrix);
 	shader_set_float(light_t::light_shader, "ambient", ambient);
+	shader_set_float(light_t::light_shader, "alpha", alpha);
 	for (const light_t& light : lights) {
 		render_light(light);
 	}

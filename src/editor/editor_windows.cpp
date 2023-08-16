@@ -88,7 +88,7 @@ void create_world_map_window(application_t &app, float x_offset)
         float tex_width = WINDOW_WIDTH * ratio;
         float tex_height = WINDOW_HEIGHT * ratio;
 
-        // ImGui::Image((void *)app.main_fbo.color_texture, ImVec2(tex_width, tex_height), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((void *)app.main_fbo.color_texture, ImVec2(tex_width, tex_height), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::Image((void *)app.light_map_fbo.color_texture, ImVec2(tex_width, tex_height), ImVec2(0, 1), ImVec2(1, 0));
 
         if (ImGui::IsWindowFocused())
