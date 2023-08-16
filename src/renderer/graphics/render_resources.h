@@ -36,7 +36,6 @@ void shader_set_vec3(shader_t& shader, const char* var_name, const glm::vec3& v)
 glm::vec3 shader_get_vec3(const shader_t& shader, const char* var_name);
 
 void shader_set_uniform(shader_t& shader, shader_uniform_t& uniform, const shader_uniform_value_t& value);
-// glm::vec3 shader_get_vec3(const shader_t& shader, shader_uniform_t& uniform);
 
 shader_uniform_t create_shader_uniform(shader_t& shader, const char* name, shader_uniform_type type);
 
