@@ -8,7 +8,6 @@
 
 mesh_t light_t::light_mesh{};
 shader_t light_t::light_shader{};
-shader_t light_t::light_stencil_shader{};
 
 std::vector<light_t> lights;
 
@@ -52,13 +51,8 @@ void init_light_data(application_t& app) {
 
 	shader_t& light_shader = light_t::light_shader;
 	light_shader = create_shader((SHADERS_PATH + "\\light.vert").c_str(), (SHADERS_PATH + "\\light.frag").c_str());
-	// shader_set_mat4(light_shader, "model", glm::mat4(1));
 	glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
 	shader_set_mat4(light_shader, "projection", projection);	
-
-	light_t::light_stencil_shader = create_shader((SHADERS_PATH + "\\light_stencil.vert").c_str(), (SHADERS_PATH + "\\light_stencil.frag").c_str());
-	shader_set_mat4(light_t::light_stencil_shader, "projection", projection);	
-
 }
 
 struct {
@@ -102,31 +96,6 @@ void set_light_in_shader(const light_t& light) {
 	shader_set_mat4(light_shader, "model", model_matrix);
 	shader_set_vec3(light_shader, "color", light.color);
 	shader_set_float(light_shader, "intensity", light.intensity);
-	shader_set_mat4(light_t::light_stencil_shader, "model", model_matrix);
-}
-
-void set_light_in_stencil_shader(const light_t& light) {
-    transform_t* transform_ptr = get_transform(light.transform_handle);
-    assert(transform_ptr != NULL);
-    transform_t& transform = *transform_ptr;
-    glm::mat4 model_matrix = get_model_matrix(transform);
-	shader_set_mat4(light_t::light_stencil_shader, "model", model_matrix);
-}
-
-void render_light_stencil(const light_t& light) {
-    set_light_in_stencil_shader(light);
-    bind_shader(light_t::light_stencil_shader);
-	render_mesh(light_t::light_mesh);
-}
-
-void render_light_stencils(camera_t& camera) {
-    glm::mat4 view_matrix = get_view_matrix(camera);
-	shader_set_mat4(light_t::light_stencil_shader, "view", view_matrix);
-	// glStencilFunc(GL_EQUAL, 0, 0xff);
-	// glStencilFunc(GL_NEVER, 0, 0xff);
-	for (const light_t& light : lights) {
-		render_light_stencil(light);
-	}
 }
 
 void render_light(const light_t& light) {
