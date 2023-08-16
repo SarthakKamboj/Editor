@@ -96,10 +96,6 @@ void set_quad_in_shader(quad_t& quad) {
     transform_t* cur_transform_ptr = get_transform(quad.transform_handle);
     assert(cur_transform_ptr != NULL);
 	transform_t cur_transform = *cur_transform_ptr;
-    // int handle = create_transform(cur_transform.position + quad.internal_transform.position, quad.internal_transform.scale * cur_transform.scale, quad.internal_transform.rotation_deg + cur_transform.rotation_deg);
-    // transform_t* frame_trans_ptr = get_transform(handle);
-    // assert(frame_trans_ptr != NULL);
-    // transform_t& frame_transform = *frame_trans_ptr;
     transform_t frame_transform{};
     frame_transform.position = cur_transform.position + quad.internal_transform.position;
     frame_transform.scale = quad.internal_transform.scale * cur_transform.scale, 
@@ -114,8 +110,6 @@ void set_quad_in_shader(quad_t& quad) {
         quad.model_matrix = get_model_matrix(frame_transform);
     }
 
-	// glm::mat4 model_matrix = get_model_matrix(frame_transform);
-	// shader_set_mat4(quad_t::quad_shader, "model", model_matrix);
 	shader_set_mat4(quad_t::quad_shader, "model", quad.model_matrix);
 	shader_set_vec3(quad_t::quad_shader, "color", quad.color);
     if (quad.texture_handle != -1) {
@@ -129,7 +123,6 @@ void set_quad_in_shader(quad_t& quad) {
 	else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-    // remove_transform(handle);
 }
 
 void render_quad(quad_t& quad) {

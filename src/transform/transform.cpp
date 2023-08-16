@@ -8,12 +8,6 @@ bool transform_idx_less(const transform_t& transform1, const transform_t& transf
     return transform1.handle < transform2.handle;
 }
 
-struct {
-    bool operator()(const transform_t& t1, const transform_t& t2) const {
-        return transform_idx_less(t1, t2);
-    }
-} transform_handle_less;
-
 int create_transform(glm::vec3 position, glm::vec3 scale, float rot_deg) {
     static int running_count = 0;
 	transform_t transform;
@@ -22,7 +16,6 @@ int create_transform(glm::vec3 position, glm::vec3 scale, float rot_deg) {
 	transform.rotation_deg = rot_deg;
     transform.handle = running_count;
 	transforms.push_back(transform);
-    // std::sort(transforms.data(), transforms.data() + transforms.size(), transform_idx_less);
     std::sort(transforms.begin(), transforms.end(), transform_idx_less);
     running_count++;
 	return transform.handle;
@@ -55,18 +48,7 @@ transform_t* binary_search_transform(int start_idx, int end_idx, int transform_h
 
 transform_t* get_transform(int transform_handle) {
     assert(transform_handle >= 0);
-    // bool exists = std::binary_search(transforms.begin(), transforms.end(), transform_handle, transform_idx_less);
-
-    // bool exists = false;
-    // for (transform_t& transform : transforms) {
-    //     if (transform.handle == transform_handle) {
-    //         // return &transform;
-    //         exists = true;
-    //     }
-    // }
-
     return binary_search_transform(0, transforms.size()-1, transform_handle);
-	// return NULL;
 }
 
 void remove_transform(int transform_handle) {
