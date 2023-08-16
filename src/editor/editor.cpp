@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "constants.h"
 #include "world_item.h"
+#include "world_map.h"
 
 #if EDITOR_MODE
 editor_t init_editor(application_t& app) {
@@ -60,7 +61,7 @@ void load_level_in_editor(editor_t& editor, level_info_t& level_info) {
     memcpy(editor.cur_level.file_name, level_info.file_name, strlen(level_info.file_name));
     memcpy(editor.cur_level.full_path, level_info.full_path, strlen(level_info.full_path));
     memcpy(editor.cur_level.output_folder, level_info.output_folder, strlen(level_info.output_folder));
-    init_placed_world_items(level_info.full_path);
+    read_world_map_file(level_info.full_path);
     editor.editor_settings.state = editor_state::EDITOR_SCREEN;
 }
 

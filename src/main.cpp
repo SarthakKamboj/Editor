@@ -60,9 +60,9 @@ int main(int argc, char** argv) {
 
 	// create_light(glm::vec3(100 - (WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0.25f), glm::vec3(1,0,0), 200.f);
 	// create_light(glm::vec3((WINDOW_WIDTH/2) - 250, WINDOW_HEIGHT/2, 0.5f), glm::vec3(1,0,0), 300.f);
-	create_light(glm::vec3((WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0.5f), glm::vec3(0.5f), 1700.f);
+	// create_light(glm::vec3((WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0.5f), glm::vec3(0.5f), 1700.f, 0.5f);
 	// create_light(glm::vec3(0.f, WINDOW_HEIGHT/2, 0), glm::vec3(0,1,0), 1000.f);
-	create_light(glm::vec3(100 + (WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0), glm::vec3(1,1,0), 500.f);
+	// create_light(glm::vec3(100 + (WINDOW_WIDTH/2), WINDOW_HEIGHT/2, 0), glm::vec3(1,1,0), 500.f, 1.0f);
 
 	while (application.running) {
         

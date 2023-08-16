@@ -10,7 +10,7 @@ mesh_t light_t::light_mesh{};
 shader_t light_t::light_shader{};
 shader_t light_t::light_stencil_shader{};
 
-static std::vector<light_t> lights;
+std::vector<light_t> lights;
 
 void init_light_data(application_t& app) {
 	mesh_t& mesh = light_t::light_mesh;
@@ -75,13 +75,14 @@ struct {
     }
 } light_z_less;
 
-int create_light(glm::vec3 pos, glm::vec3 color, float radius) {
+int create_light(glm::vec3 pos, glm::vec3 color, float radius, float intensity) {
     static int running_cnt = 0;
     light_t light;
     light.id = running_cnt;
     light.color = color;
     light.world_pos = pos;
     light.radius = radius;
+	light.intensity = intensity;
     light.transform_handle = create_transform(pos, glm::vec3(light.radius), 0.f);
     lights.push_back(light);
 	std::sort(lights.begin(), lights.end(), light_z_less);
@@ -92,12 +93,15 @@ void set_light_in_shader(const light_t& light) {
     transform_t* transform_ptr = get_transform(light.transform_handle);
     assert(transform_ptr != NULL);
     transform_t& transform = *transform_ptr;
+	transform.position.x = light.world_pos.x;
+	transform.position.y = light.world_pos.y;
+	transform.scale = glm::vec3(light.radius);
     glm::mat4 model_matrix = get_model_matrix(transform);
 
 	shader_t& light_shader = light_t::light_shader;
 	shader_set_mat4(light_shader, "model", model_matrix);
 	shader_set_vec3(light_shader, "color", light.color);
-
+	shader_set_float(light_shader, "intensity", light.intensity);
 	shader_set_mat4(light_t::light_stencil_shader, "model", model_matrix);
 }
 
@@ -136,5 +140,18 @@ void render_lights(camera_t& camera, float ambient, float alpha) {
 	shader_set_mat4(light_t::light_shader, "view", view_matrix);
 	for (const light_t& light : lights) {
 		render_light(light);
+	}
+}
+
+void remove_light(light_t& light) {
+	int idx_to_remove = -1;
+	for (int i = 0; i < lights.size(); i++) {
+		if (lights[i].id == light.id) {
+			idx_to_remove = i;
+			break;
+		}
+	}
+	if (idx_to_remove != -1) {
+		lights.erase(lights.begin() + idx_to_remove, lights.begin() + idx_to_remove + 1);
 	}
 }

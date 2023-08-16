@@ -12,6 +12,7 @@ struct light_t {
     float radius = 20.f;
     int id = -1;
     int transform_handle = -1;
+    float intensity = 1.0f;
 
     static mesh_t light_mesh;
     static shader_t light_shader;
@@ -19,10 +20,11 @@ struct light_t {
 };
 
 void init_light_data(application_t& app);
-int create_light(glm::vec3 pos, glm::vec3 color, float radius);
+int create_light(glm::vec3 pos, glm::vec3 color, float radius, float intensity);
 void set_light_in_shader(const light_t& light);
 void render_light(const light_t& light);
 void render_lights(camera_t& camera, float ambient, float alpha);
+void remove_light(light_t& light);
 
 void set_light_in_stencil_shader(const light_t& light);
 void render_light_stencil(const light_t& light);

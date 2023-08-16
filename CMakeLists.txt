@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.22.1)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
-# set(CMAKE_BUILD_TYPE "Release")
 
 project(editor)
 
@@ -43,6 +42,7 @@ add_executable(${PROJECT_NAME}
     src/input/input.cpp
     src/editor/add_world_item_modal.cpp
     src/editor/editor_windows.cpp
+    src/editor/world_map.cpp
     src/editor/editor.cpp
     src/editor/gridline.cpp
     src/editor/level_info.cpp

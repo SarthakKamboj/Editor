@@ -7,6 +7,9 @@
 #include "constants.h"
 #include "renderer/basic/quad.h"
 #include "add_world_item_modal.h"
+#include "renderer/basic/light.h"
+#include <vector>
+#include "world_map.h"
 
 extern mouse_state_t* mouse_state_ptr;
 static bool show_level_info_file = false;
@@ -49,10 +52,10 @@ void create_menu_bar(editor_t& editor)
             {
                 open_add_world_modal();
             }
-            if (ImGui::MenuItem("Save World Items"))
-            {
-                write_world_items_to_file();
-            }
+            // if (ImGui::MenuItem("Save World Items"))
+            // {
+                // write_world_items_to_file();
+            // }
             if (ImGui::MenuItem("Save Level"))
             {
                 // write_world_map_to_file(app.editor_settings.cur_level);
@@ -168,9 +171,48 @@ void create_editor_windows(editor_t& editor, application_t &app, float x_offset)
     update_add_world_item_modal();
 	create_world_item_catalog();
     create_placed_world_items_editor();
+    create_light_editor_window();
 
     if (show_level_info_file) {
         create_level_info_window(editor);
     }
 }
 
+extern std::vector<light_t> lights;
+void create_light_editor_window() {
+    ImGui::Begin("Lighting Window");
+    static bool adding_light = false;
+    if (ImGui::Button("Toggle add Light")) {
+        adding_light = !adding_light;
+    }
+
+    if (adding_light) {
+        static float intensity = 1.0f;
+        static glm::vec2 world_pos(0);
+        static glm::vec3 color(1);
+        static float radius = 50.f;
+        ImGui::DragFloat("Intensity", &intensity, 0.001f, 0.0f, 1.0f);
+        ImGui::DragFloat("Radius", &radius, 1.f, 0.0f, 5000.f);
+        ImGui::DragFloat2("World Pos", &world_pos.x);
+        ImGui::ColorPicker3("Color", (float*)&color);
+        if (ImGui::Button("Add")) {
+            create_light(glm::vec3(world_pos, 0), color, radius, intensity);
+        }
+    }
+
+    for (int i = 0; i < lights.size(); i++) {
+        ImGui::Separator();
+        ImGui::PushID(i);
+        light_t& light = lights[i];
+        ImGui::Text("Light %i", light.id);
+        ImGui::DragFloat("Intensity", &light.intensity, 0.001f, 0.0f, 1.0f);
+        ImGui::DragFloat("Radius", &light.radius, 1.f, 0.0f, 5000.f);
+        ImGui::DragFloat2("World Pos", &light.world_pos.x);
+        ImGui::ColorPicker3("Color", (float*)&light.color);
+        if (ImGui::Button("Delete")) {
+            remove_light(lights[i]);
+        }
+        ImGui::PopID();
+    }
+    ImGui::End();
+}
